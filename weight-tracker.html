@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WeightWise — ניתוח הרכב גוף</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Assistant:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#111827;--card:#1f2937;--card2:#161e2e;
+      --border:#374151;--primary:#6366f1;--green:#22c55e;
+      --orange:#f97316;--text:#f9fafb;--muted:#9ca3af;
+    }
+    html{scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--text);font-family:'Assistant',sans-serif;overflow-x:hidden}
+
+    nav{display:flex;align-items:center;justify-content:space-between;padding:18px 48px;
+      border-bottom:1px solid var(--border);position:sticky;top:0;
+      background:rgba(17,24,39,.92);backdrop-filter:blur(14px);z-index:200}
+    .logo{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;display:flex;align-items:center;gap:8px}
+    .nav-links{display:flex;gap:28px;list-style:none}
+    .nav-links a{color:var(--muted);text-decoration:none;font-size:14px;transition:color .2s}
+    .nav-links a:hover{color:var(--text)}
+    .btn{background:var(--primary);color:#fff;border:none;border-radius:50px;padding:9px 22px;
+      font-family:'Assistant',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:opacity .2s,transform .15s}
+    .btn:hover{opacity:.85;transform:translateY(-1px)}
+    .btn-lg{padding:13px 36px;font-size:16px}
+    .btn-outline{background:transparent;border:1px solid var(--border);color:var(--text);border-radius:50px;
+      padding:11px 28px;font-family:'Assistant',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:border-color .2s}
+    .btn-outline:hover{border-color:var(--primary)}
+
+    .hero{max-width:700px;margin:0 auto;padding:76px 24px 48px;text-align:center}
+    .badge{display:inline-flex;align-items:center;gap:6px;background:rgba(99,102,241,.12);
+      border:1px solid rgba(99,102,241,.25);border-radius:50px;padding:5px 14px;
+      font-size:13px;color:#a5b4fc;margin-bottom:20px}
+    .hero h1{font-family:'Syne',sans-serif;font-size:clamp(32px,5.5vw,54px);font-weight:800;line-height:1.1;margin-bottom:16px}
+    .hero h1 em{font-style:normal;color:var(--green)}
+    .hero p{color:var(--muted);font-size:17px;max-width:460px;margin:0 auto 28px;line-height:1.7}
+    .hero-btns{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+
+    .section{max-width:780px;margin:0 auto 24px;padding:0 24px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:24px;overflow:hidden}
+    .card-header{background:linear-gradient(135deg,#1e1b4b,#312e81);padding:20px 28px;
+      border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+    .card-header h2{font-family:'Syne',sans-serif;font-size:19px;font-weight:800}
+    .card-header p{color:#a5b4fc;font-size:13px;margin-top:2px}
+    .step-num{width:30px;height:30px;background:rgba(255,255,255,.12);border-radius:50%;
+      display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0}
+    .card-body{padding:24px 28px}
+    .field-label{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.5px;margin-bottom:8px;display:block}
+    .divider{border:none;border-top:1px solid var(--border);margin:18px 0}
+
+    /* GENDER */
+    .gender-row{display:flex;gap:8px;margin-bottom:18px}
+    .gen-btn{flex:1;padding:9px;border-radius:11px;background:var(--card2);border:1px solid var(--border);
+      color:var(--muted);font-family:'Assistant',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .18s;text-align:center}
+    .gen-btn.active{background:rgba(99,102,241,.2);border-color:var(--primary);color:var(--text)}
+
+    /* INPUTS */
+    .inputs-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
+    .irow{display:flex;align-items:center;gap:5px}
+    .ninput{flex:1;background:var(--card2);border:1px solid var(--border);border-radius:11px;
+      padding:10px 6px;color:var(--text);font-family:'Syne',sans-serif;font-size:22px;font-weight:800;
+      text-align:center;outline:none;transition:border-color .2s;-moz-appearance:textfield;min-width:0}
+    .ninput::-webkit-inner-spin-button{-webkit-appearance:none}
+    .ninput:focus{border-color:var(--primary)}
+    .ubadge{background:var(--card2);border:1px solid var(--border);border-radius:8px;
+      padding:8px 9px;font-size:11px;font-weight:700;color:var(--muted);white-space:nowrap}
+    .sbtn{width:32px;height:32px;border-radius:50%;background:var(--card2);border:1px solid var(--border);
+      color:var(--text);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;flex-shrink:0}
+    .sbtn:hover{background:#374151;border-color:var(--primary)}
+
+    /* ACTIVITY */
+    .act-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px}
+    .act-btn{background:var(--card2);border:1px solid var(--border);border-radius:11px;
+      padding:10px 8px;text-align:center;cursor:pointer;transition:all .18s;font-family:'Assistant',sans-serif}
+    .act-btn:hover{border-color:var(--primary)}
+    .act-btn.active{background:rgba(99,102,241,.18);border-color:var(--primary)}
+    .act-emoji{font-size:20px;margin-bottom:3px}
+    .act-name{font-size:12px;font-weight:700}
+    .act-desc{font-size:10px;color:var(--muted);margin-top:1px}
+
+    /* GOAL TABS */
+    .goal-tabs{display:flex;gap:0;background:var(--card2);border-radius:12px;padding:4px;margin-bottom:14px;border:1px solid var(--border)}
+    .goal-tab{flex:1;padding:9px 12px;border-radius:9px;border:none;background:transparent;
+      color:var(--muted);font-family:'Assistant',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;text-align:center}
+    .goal-tab.active{background:var(--primary);color:#fff}
+
+    /* GOAL WEIGHT */
+    .goal-weight-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+    .goal-weight-input{background:var(--card2);border:1px solid var(--border);border-radius:12px;
+      padding:11px 14px;color:var(--text);font-family:'Syne',sans-serif;font-size:28px;font-weight:800;
+      text-align:center;outline:none;width:130px;-moz-appearance:textfield;transition:border-color .2s}
+    .goal-weight-input::-webkit-inner-spin-button{-webkit-appearance:none}
+    .goal-weight-input:focus{border-color:var(--primary)}
+    .goal-note{font-size:13px;color:var(--muted);line-height:1.6;flex:1}
+
+    /* BF GOAL */
+    .bf-goal-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px}
+    .bf-goal-card{background:var(--card2);border:2px solid var(--border);border-radius:12px;
+      padding:10px 6px;text-align:center;cursor:pointer;transition:all .2s}
+    .bf-goal-card:hover{border-color:var(--primary)}
+    .bf-goal-card.selected{border-color:var(--green);background:rgba(34,197,94,.08)}
+    .bfg-bar{height:6px;border-radius:3px;margin:5px auto 5px;width:75%}
+    .bfg-pct{font-family:'Syne',sans-serif;font-size:12px;font-weight:800}
+    .bfg-label{font-size:10px;color:var(--muted);margin-top:2px}
+
+    /* TIMELINE SLIDER */
+    .timeline-wrap{background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:16px 18px}
+    .timeline-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+    .timeline-title{font-size:13px;font-weight:700;color:var(--muted)}
+    .timeline-val{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--primary)}
+    input[type=range]{width:100%;-webkit-appearance:none;height:6px;background:var(--border);border-radius:3px;outline:none;cursor:pointer}
+    input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--primary);border:2.5px solid var(--bg);cursor:pointer}
+    .timeline-marks{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:6px}
+    .timeline-info{display:flex;gap:12px;margin-top:12px;flex-wrap:wrap}
+    .tinfo-chip{background:rgba(0,0,0,.2);border-radius:8px;padding:6px 12px;font-size:12px}
+    .tinfo-chip span{font-weight:800;color:var(--text)}
+    .tinfo-chip.warn span{color:var(--orange)}
+    .tinfo-chip.ok span{color:var(--green)}
+
+    /* PHOTO */
+    .photo-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:0}
+    .upload-zone{background:var(--card2);border:2px dashed var(--border);border-radius:16px;
+      min-height:180px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+      cursor:pointer;transition:border-color .2s,background .2s;position:relative;overflow:hidden;
+      text-align:center;padding:20px}
+    .upload-zone:hover{border-color:var(--primary);background:rgba(99,102,241,.04)}
+    .upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+    .upload-icon{font-size:36px;margin-bottom:8px}
+    .upload-title{font-size:14px;font-weight:700;margin-bottom:4px}
+    .upload-sub{font-size:12px;color:var(--muted);line-height:1.5}
+    #photoPreview{width:100%;height:180px;object-fit:cover;border-radius:12px;display:none}
+    .remove-photo{position:absolute;top:8px;left:8px;width:28px;height:28px;
+      background:rgba(0,0,0,.75);border:none;border-radius:50%;color:#fff;font-size:12px;
+      cursor:pointer;display:none;align-items:center;justify-content:center;z-index:2}
+    .photo-has-img .upload-icon,.photo-has-img .upload-title,.photo-has-img .upload-sub{display:none}
+    .photo-has-img #photoPreview{display:block}
+    .photo-has-img .remove-photo{display:flex}
+    .photo-has-img input{display:none}
+
+    /* AI ANALYSIS PANEL */
+    .ai-panel{background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:14px 16px}
+    .ai-panel-title{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.5px;margin-bottom:12px}
+    .ai-source-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+    .ai-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .ai-source-label{font-size:12px;flex:1}
+    .ai-source-bar-wrap{width:80px;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+    .ai-source-bar{height:100%;border-radius:3px;transition:width .8s ease}
+    .ai-source-val{font-family:'Syne',sans-serif;font-size:13px;font-weight:800;width:42px;text-align:left}
+    .ai-confidence{display:flex;align-items:center;justify-content:space-between;
+      margin-top:12px;padding-top:10px;border-top:1px solid var(--border)}
+    .ai-conf-label{font-size:11px;color:var(--muted)}
+    .ai-conf-val{font-family:'Syne',sans-serif;font-size:16px;font-weight:800}
+
+    /* AI ANALYSIS RESULT PANEL */
+    .ai-result-panel{background:var(--card2);border:1px solid var(--border);border-radius:14px;
+      padding:14px 16px;min-height:180px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
+    .ai-result-panel.loading{border-color:rgba(99,102,241,.4)}
+    .ai-result-panel.done{align-items:flex-start;text-align:right;justify-content:flex-start}
+    .ai-result-panel.error{border-color:rgba(239,68,68,.3)}
+    .ai-idle-icon{font-size:42px;margin-bottom:10px;opacity:.3}
+    .ai-idle-text{font-size:13px;color:var(--muted);line-height:1.6}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--primary);
+      border-radius:50%;animation:spin 0.9s linear infinite;margin-bottom:12px}
+    .ai-loading-text{font-size:13px;color:var(--muted)}
+    .ai-loading-dots::after{content:'...';animation:dots 1.2s steps(3,end) infinite}
+    @keyframes dots{0%,33%{content:'.'}34%,66%{content:'..'}67%,100%{content:'...'}}
+    .ai-result-bf{font-family:'Syne',sans-serif;font-size:52px;font-weight:800;line-height:1}
+    .ai-result-cat{display:inline-block;border-radius:50px;padding:3px 12px;font-size:12px;font-weight:700;margin:6px 0}
+    .ai-result-label{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.5px;margin-bottom:2px}
+    .ai-conf-row{display:flex;align-items:center;justify-content:space-between;margin-top:8px;
+      padding-top:8px;border-top:1px solid var(--border);width:100%}
+    .ai-conf-badge{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700}
+    .ai-analysis-text{font-size:11px;color:var(--muted);line-height:1.6;margin-top:8px;text-align:right;width:100%}
+    .ai-indicators{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;width:100%}
+    .ai-ind-chip{background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);border-radius:20px;
+      padding:2px 9px;font-size:10px;color:#a5b4fc}
+
+    /* OPTIONAL */
+    .opt-toggle{display:flex;align-items:center;justify-content:space-between;
+      padding:11px 16px;border-radius:12px;background:var(--card2);border:1px solid var(--border);
+      cursor:pointer;margin-top:14px;transition:border-color .2s;user-select:none}
+    .opt-toggle:hover{border-color:var(--primary)}
+    .opt-lbl{font-size:13px;font-weight:700;color:var(--muted);display:flex;align-items:center;gap:7px}
+    .opt-arrow{font-size:11px;color:var(--muted);transition:transform .25s}
+    .opt-arrow.open{transform:rotate(180deg)}
+    .opt-body{display:none;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+    .opt-body.open{display:grid}
+
+    .analyze-btn{width:100%;background:var(--primary);color:#fff;border:none;border-radius:14px;
+      padding:16px;font-family:'Syne',sans-serif;font-size:17px;font-weight:800;
+      cursor:pointer;margin-top:20px;transition:opacity .2s,transform .15s;
+      display:flex;align-items:center;justify-content:center;gap:8px}
+    .analyze-btn:hover{opacity:.87;transform:translateY(-1px)}
+
+    /* RESULTS */
+    .result-card{background:var(--card2);border:1px solid var(--border);border-radius:16px;padding:20px}
+    .rlabel{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.5px;margin-bottom:6px}
+    .rnum{font-family:'Syne',sans-serif;font-size:52px;font-weight:800;line-height:1}
+    .runit{font-size:19px;font-weight:700;color:var(--muted);padding-bottom:5px;margin-right:4px}
+    .cat-badge{display:inline-block;border-radius:50px;padding:4px 14px;font-size:12px;font-weight:700;margin-top:8px}
+    .bf-bar-track{height:10px;border-radius:5px;margin:12px 0 5px;
+      background:linear-gradient(90deg,#22c55e 0%,#a3e635 22%,#facc15 44%,#f97316 66%,#ef4444 100%);position:relative}
+    .bf-marker{position:absolute;top:-4px;width:18px;height:18px;border-radius:50%;
+      background:#fff;border:3px solid var(--primary);transform:translateX(-50%);
+      transition:left .7s cubic-bezier(.34,1.56,.64,1)}
+    .bar-labels{display:flex;justify-content:space-between;font-size:9px;color:var(--muted)}
+    .results-2col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .metrics-4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}
+    .met-chip{background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:13px 10px;text-align:center}
+    .met-icon{font-size:17px;margin-bottom:4px}
+    .met-val{font-family:'Syne',sans-serif;font-size:19px;font-weight:800;line-height:1}
+    .met-lbl{font-size:10px;color:var(--muted);margin-top:3px}
+    .goal-banner{border-radius:16px;padding:20px 24px;margin-top:12px;
+      background:linear-gradient(135deg,rgba(99,102,241,.15),rgba(34,197,94,.08));
+      border:1px solid rgba(99,102,241,.3)}
+    .goal-banner h3{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;margin-bottom:4px}
+    .goal-banner p{font-size:13px;color:#c7d2fe;line-height:1.6}
+    .goal-stats{display:flex;gap:12px;margin-top:14px;flex-wrap:wrap}
+    .goal-stat{background:rgba(0,0,0,.25);border-radius:10px;padding:10px 14px}
+    .goal-stat .gs-val{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;line-height:1}
+    .goal-stat .gs-lbl{font-size:10px;color:var(--muted);margin-top:3px}
+    .cals-big{background:var(--card2);border:1px solid var(--border);border-radius:16px;padding:20px;
+      margin-top:12px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+    .cals-num{font-family:'Syne',sans-serif;font-size:54px;font-weight:800;color:var(--green);line-height:1}
+    .cals-note{font-size:13px;color:var(--muted);margin-top:4px;line-height:1.5}
+    .macros-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+    .mac-card{background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:14px;display:flex;align-items:center;gap:10px}
+    .mac-icon{font-size:22px}
+    .mac-lbl{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.4px}
+    .mac-val{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;line-height:1.1}
+    .chart-wrap{background:var(--card2);border:1px solid var(--border);border-radius:16px;padding:16px;margin-top:12px}
+    .chart-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+    .chart-title{font-size:13px;font-weight:700;color:var(--muted)}
+    .chart-badge{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);border-radius:50px;padding:3px 10px;font-size:11px;color:var(--green);font-weight:700}
+    .tip-card{background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.2);border-radius:14px;padding:14px 16px;margin-top:12px;display:flex;gap:10px}
+    .tip-text{font-size:13px;color:#c7d2fe;line-height:1.65}
+    .plan-list{display:flex;flex-direction:column;gap:10px}
+    .plan-item{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:12px 16px;display:flex;align-items:flex-start;gap:12px;font-size:14px;line-height:1.6}
+    .pdot{width:8px;height:8px;border-radius:50%;margin-top:6px;flex-shrink:0}
+
+    /* SIGNUP */
+    .signup-card{background:linear-gradient(135deg,#1e1b4b,#4338ca,#6366f1);border-radius:24px;padding:44px 36px;text-align:center}
+    .signup-card h2{font-family:'Syne',sans-serif;font-size:clamp(22px,3vw,30px);font-weight:800;margin-bottom:10px}
+    .signup-card p{color:#c7d2fe;font-size:15px;margin-bottom:26px;max-width:400px;margin-left:auto;margin-right:auto;line-height:1.6}
+    .form-row{display:flex;gap:10px;max-width:420px;margin:0 auto 12px}
+    .form-input{flex:1;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:12px 16px;color:#fff;font-family:'Assistant',sans-serif;font-size:15px;outline:none;text-align:right}
+    .form-input::placeholder{color:rgba(255,255,255,.4)}
+    .form-input:focus{border-color:rgba(255,255,255,.5)}
+    .btn-white{background:#fff;color:#4338ca;border:none;border-radius:50px;padding:13px 30px;font-family:'Assistant',sans-serif;font-size:15px;font-weight:700;cursor:pointer;white-space:nowrap;transition:transform .2s,box-shadow .2s}
+    .btn-white:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.3)}
+    .signup-note{font-size:12px;color:rgba(255,255,255,.35);margin-top:10px}
+
+    footer{border-top:1px solid var(--border);padding:26px 48px;display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:13px}
+    footer a{color:var(--muted);text-decoration:none}footer a:hover{color:var(--text)}
+    .fi{opacity:0;transform:translateY(18px);transition:opacity .5s,transform .5s}
+    .fi.show{opacity:1;transform:none}
+    .hidden{display:none!important}
+
+    @media(max-width:640px){
+      nav{padding:16px 20px}.nav-links{display:none}
+      .hero{padding:52px 20px 36px}
+      .card-header,.card-body{padding:18px 20px}
+      .inputs-3,.act-grid{grid-template-columns:repeat(2,1fr)}
+      .bf-goal-grid{grid-template-columns:repeat(3,1fr)}
+      .photo-grid{grid-template-columns:1fr}
+      .results-2col,.metrics-4,.macros-3{grid-template-columns:repeat(2,1fr)}
+      .form-row{flex-direction:column}
+      footer{flex-direction:column;gap:10px;text-align:center;padding:20px}
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">⚡ WeightWise</div>
+  <ul class="nav-links">
+    <li><a href="#analysis">ניתוח</a></li>
+    <li><a href="#results">תוצאות</a></li>
+    <li><a href="#signup">הרשמה</a></li>
+  </ul>
+  <button class="btn" onclick="document.getElementById('signup').scrollIntoView({behavior:'smooth'})">התחל בחינם</button>
+</nav>
+
+<section class="hero fi">
+  <div class="badge">🧬 ניתוח הרכב גוף מבוסס AI</div>
+  <h1>גלה את <em>אחוזי השומן</em><br/>שלך — וקבל תוכנית אישית</h1>
+  <p>העלה תמונה, הזן נתונים, בחר מטרה וציר זמן — המערכת מצליבה הכל ומייצרת תוכנית מדויקת.</p>
+  <div class="hero-btns">
+    <button class="btn btn-lg" onclick="document.getElementById('analysis').scrollIntoView({behavior:'smooth'})">🔍 נתח את הגוף שלי</button>
+    <button class="btn-outline">צפה בהדגמה</button>
+  </div>
+</section>
+
+<!-- ═══════════════════ STEP 1 ═══════════════════ -->
+<div class="section fi" id="analysis">
+  <div class="card">
+    <div class="card-header">
+      <div class="step-num">1</div>
+      <div><h2>נתונים אישיים + מטרה</h2><p>מלא את הפרטים, בחר מטרה וציר זמן</p></div>
+    </div>
+    <div class="card-body">
+
+      <!-- GENDER -->
+      <span class="field-label">מין</span>
+      <div class="gender-row">
+        <button class="gen-btn active" id="gMale" onclick="setGender('male')">👨 גבר</button>
+        <button class="gen-btn" id="gFemale" onclick="setGender('female')">👩 אישה</button>
+      </div>
+
+      <!-- H / W / AGE -->
+      <div class="inputs-3">
+        <div>
+          <span class="field-label" style="text-align:center">📏 גובה</span>
+          <div class="irow">
+            <button class="sbtn" onclick="adj('height',-1)">−</button>
+            <input class="ninput" id="height" type="number" value="180" min="140" max="220"/>
+            <button class="sbtn" onclick="adj('height',1)">+</button>
+            <span class="ubadge">ס"מ</span>
+          </div>
+        </div>
+        <div>
+          <span class="field-label" style="text-align:center">⚖️ משקל</span>
+          <div class="irow">
+            <button class="sbtn" onclick="adj('weight',-1)">−</button>
+            <input class="ninput" id="weight" type="number" value="85" min="40" max="200"/>
+            <button class="sbtn" onclick="adj('weight',1)">+</button>
+            <span class="ubadge">ק"ג</span>
+          </div>
+        </div>
+        <div>
+          <span class="field-label" style="text-align:center">🎂 גיל</span>
+          <div class="irow">
+            <button class="sbtn" onclick="adj('age',-1)">−</button>
+            <input class="ninput" id="age" type="number" value="28" min="16" max="80"/>
+            <button class="sbtn" onclick="adj('age',1)">+</button>
+            <span class="ubadge">שנים</span>
+          </div>
+        </div>
+      </div>
+
+      <hr class="divider"/>
+
+      <!-- ACTIVITY -->
+      <span class="field-label">🏃 רמת פעילות</span>
+      <div class="act-grid">
+        <button class="act-btn" onclick="setAct(this,1.2)">
+          <div class="act-emoji">🛋️</div><div class="act-name">יושבני</div><div class="act-desc">עבודה מהמחשב</div>
+        </button>
+        <button class="act-btn active" onclick="setAct(this,1.375)">
+          <div class="act-emoji">🚶</div><div class="act-name">קל</div><div class="act-desc">1–3× בשבוע</div>
+        </button>
+        <button class="act-btn" onclick="setAct(this,1.55)">
+          <div class="act-emoji">🚴</div><div class="act-name">בינוני</div><div class="act-desc">3–5× בשבוע</div>
+        </button>
+        <button class="act-btn" onclick="setAct(this,1.725)">
+          <div class="act-emoji">🔥</div><div class="act-name">אינטנסיבי</div><div class="act-desc">6–7× בשבוע</div>
+        </button>
+      </div>
+
+      <hr class="divider"/>
+
+      <!-- GOAL -->
+      <span class="field-label">🎯 מטרה</span>
+      <div class="goal-tabs">
+        <button class="goal-tab active" id="tabWeight" onclick="setGoalTab('weight')">⚖️ יעד משקל</button>
+        <button class="goal-tab" id="tabBf" onclick="setGoalTab('bf')">💪 יעד ויזואלי (% שומן)</button>
+        <button class="goal-tab" id="tabMaintain" onclick="setGoalTab('maintain')">🔒 שמירת משקל</button>
+      </div>
+
+      <div id="panelWeight">
+        <div class="goal-weight-row">
+          <div>
+            <span class="field-label">משקל יעד</span>
+            <div class="irow" style="gap:8px">
+              <button class="sbtn" onclick="adj('goalWeight',-1)">−</button>
+              <input class="goal-weight-input" id="goalWeight" type="number" value="75" min="40" max="200"/>
+              <button class="sbtn" onclick="adj('goalWeight',1)">+</button>
+              <span class="ubadge">ק"ג</span>
+            </div>
+          </div>
+          <div class="goal-note" id="gnNote">ירידה של <strong id="gnDiff">10</strong> ק"ג</div>
+        </div>
+      </div>
+
+      <div id="panelBf" class="hidden">
+        <div class="bf-goal-grid" id="bfGoalGrid"></div>
+        <div style="font-size:12px;color:var(--muted)" id="bfGoalNote">בחר את הגוף שאתה שואף אליו</div>
+      </div>
+
+      <div id="panelMaintain" class="hidden">
+        <div style="background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.2);border-radius:12px;padding:12px 16px;font-size:13px;color:#c7d2fe">
+          🔒 תוכנית שמירה: צריכה בדיוק של ה-TDEE שלך + אימוני כוח לשמירת הרכב גוף
+        </div>
+      </div>
+
+      <!-- ── TIMELINE ── -->
+      <div id="timelineSection">
+        <hr class="divider"/>
+        <span class="field-label">⏱️ ציר זמן</span>
+        <div class="timeline-wrap">
+          <div class="timeline-top">
+            <div class="timeline-title">כמה שבועות יש לך להגיע ליעד?</div>
+            <div class="timeline-val"><span id="weeksNum">16</span> שבועות</div>
+          </div>
+          <input type="range" id="weeksSlider" min="4" max="52" value="16" oninput="onWeeksChange()"/>
+          <div class="timeline-marks"><span>4 שבועות</span><span>3 חודשים</span><span>6 חודשים</span><span>שנה</span></div>
+          <div class="timeline-info" id="timelineInfo">
+            <div class="tinfo-chip ok" id="tDeficitChip"><span id="tDeficitLabel">גירעון</span> יומי: <span id="tDeficit">—</span> קל</div>
+            <div class="tinfo-chip">קצב שבועי: <span id="tWeekly">—</span> ק"ג</div>
+            <div class="tinfo-chip">תאריך יעד: <span id="tDate">—</span></div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="divider"/>
+
+      <!-- PHOTO + AI ANALYSIS -->
+      <span class="field-label">📸 תמונה — ניתוח AI אמיתי</span>
+      <div class="photo-grid">
+
+        <div style="position:relative">
+          <div class="upload-zone" id="uploadZone">
+            <input type="file" id="photoInput" accept="image/*" onchange="onPhoto(event)"/>
+            <div class="upload-icon">📷</div>
+            <div class="upload-title">העלה תמונה גוף מלא</div>
+            <div class="upload-sub">Claude Vision ינתח את הגוף שלך ויעריך אחוזי שומן בצורה מדויקת</div>
+            <img id="photoPreview"/>
+            <button class="remove-photo" onclick="removePhoto(event)">✕</button>
+          </div>
+        </div>
+
+        <!-- AI Result panel -->
+        <div class="ai-result-panel" id="aiResultPanel">
+          <div class="ai-idle-icon">🤖</div>
+          <div class="ai-idle-text">העלה תמונה כדי שהבינה המלאכותית<br/>תנתח את הרכב גוף שלך</div>
+        </div>
+      </div>
+
+      <!-- OPTIONAL MEASUREMENTS -->
+      <div class="opt-toggle" onclick="toggleOpt()">
+        <span class="opt-lbl">📐 הוסף מדידות להגדלת הדיוק <span style="color:#a5b4fc;font-weight:400">(אופציונלי)</span></span>
+        <span class="opt-arrow" id="optArrow">▼</span>
+      </div>
+      <div class="opt-body" id="optBody">
+        <div>
+          <span class="field-label">🔵 היקף צוואר</span>
+          <div class="irow">
+            <button class="sbtn" onclick="adj('neck',-0.5)">−</button>
+            <input class="ninput" id="neck" type="number" value="38" step="0.5" min="25" max="60" style="font-size:18px" oninput="updateConfidenceBadge()"/>
+            <button class="sbtn" onclick="adj('neck',0.5)">+</button>
+            <span class="ubadge">ס"מ</span>
+          </div>
+        </div>
+        <div>
+          <span class="field-label">🔴 היקף מותניים</span>
+          <div class="irow">
+            <button class="sbtn" onclick="adj('waist',-0.5)">−</button>
+            <input class="ninput" id="waist" type="number" value="85" step="0.5" min="50" max="160" style="font-size:18px" oninput="updateConfidenceBadge()"/>
+            <button class="sbtn" onclick="adj('waist',0.5)">+</button>
+            <span class="ubadge">ס"מ</span>
+          </div>
+        </div>
+        <div class="hidden" id="hipGroup">
+          <span class="field-label">🟣 היקף ירכיים</span>
+          <div class="irow">
+            <button class="sbtn" onclick="adj('hip',-0.5)">−</button>
+            <input class="ninput" id="hip" type="number" value="98" step="0.5" min="60" max="160" style="font-size:18px" oninput="updateConfidenceBadge()"/>
+            <button class="sbtn" onclick="adj('hip',0.5)">+</button>
+            <span class="ubadge">ס"מ</span>
+          </div>
+        </div>
+      </div>
+
+      <button class="analyze-btn" onclick="analyze()">🔬 נתח והצג תוכנית אישית</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ STEP 2 RESULTS ═══════════════════ -->
+<div class="section fi" id="results">
+  <div class="card hidden" id="resultsCard">
+    <div class="card-header">
+      <div class="step-num" style="background:rgba(34,197,94,.2)">2</div>
+      <div><h2>ניתוח הרכב גוף</h2><p id="resultSubtitle">מבוסס על נתונים אישיים</p></div>
+    </div>
+    <div class="card-body">
+      <div class="results-2col">
+        <div class="result-card">
+          <div class="rlabel">אחוזי שומן גוף</div>
+          <div style="display:flex;align-items:baseline;gap:4px">
+            <div class="rnum" id="rBf">—</div><div class="runit">%</div>
+          </div>
+          <span class="cat-badge" id="rBfCat"></span>
+          <div class="bf-bar-track"><div class="bf-marker" id="bfMarker" style="left:30%"></div></div>
+          <div class="bar-labels"><span>ספורטאי</span><span>כשיר</span><span>ממוצע</span><span>גבוה</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div class="result-card" style="flex:1">
+            <div class="rlabel">BMI</div>
+            <div class="rnum" id="rBmi" style="font-size:42px;color:var(--primary)">—</div>
+            <span class="cat-badge" id="rBmiCat"></span>
+          </div>
+          <div class="result-card" style="flex:1">
+            <div class="rlabel">מסת שריר נטו</div>
+            <div style="display:flex;align-items:baseline;gap:4px">
+              <div class="rnum" id="rLean" style="font-size:42px;color:#60a5fa">—</div>
+              <div class="runit" style="font-size:16px">ק"ג</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="metrics-4">
+        <div class="met-chip"><div class="met-icon">🔥</div><div class="met-val" id="rBmr" style="color:var(--orange)">—</div><div class="met-lbl">BMR</div></div>
+        <div class="met-chip"><div class="met-icon">⚡</div><div class="met-val" id="rTdee" style="color:var(--green)">—</div><div class="met-lbl">TDEE</div></div>
+        <div class="met-chip"><div class="met-icon" id="rChangeIcon">📉</div><div class="met-val" id="rToLose" style="color:#f472b6">—</div><div class="met-lbl" id="rChangeLbl">לשינוי</div></div>
+        <div class="met-chip"><div class="met-icon">📅</div><div class="met-val" id="rWeeks" style="color:var(--primary)">—</div><div class="met-lbl">שבועות</div></div>
+      </div>
+      <div class="goal-banner">
+        <h3 id="goalBannerTitle">🎯 יעד</h3>
+        <p id="goalBannerDesc">—</p>
+        <div class="goal-stats" id="goalStats"></div>
+      </div>
+      <div class="cals-big">
+        <div>
+          <div class="rlabel">🍽️ יעד קלורי יומי</div>
+          <div class="cals-num" id="rCals">—</div>
+          <div class="cals-note" id="rCalsNote">—</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:4px" id="rDeficitLabel">גירעון</div>
+          <div style="font-family:'Syne',sans-serif;font-size:30px;font-weight:800;color:#60a5fa" id="rDeficit">—</div>
+          <div style="font-size:11px;color:var(--muted)">קל/יום</div>
+        </div>
+      </div>
+      <div class="macros-3">
+        <div class="mac-card"><div class="mac-icon">🥩</div><div><div class="mac-lbl">חלבון</div><div class="mac-val" id="rProtein" style="color:#f472b6">—</div></div></div>
+        <div class="mac-card"><div class="mac-icon">🌾</div><div><div class="mac-lbl">פחמימות</div><div class="mac-val" id="rCarbs" style="color:var(--orange)">—</div></div></div>
+        <div class="mac-card"><div class="mac-icon">🥑</div><div><div class="mac-lbl">שומן</div><div class="mac-val" id="rFats" style="color:#60a5fa">—</div></div></div>
+      </div>
+      <div class="chart-wrap">
+        <div class="chart-top">
+          <div class="chart-title" id="chartTitle">צפי שינוי משקל לפי ציר הזמן</div>
+          <div class="chart-badge" id="chartBadge">—</div>
+        </div>
+        <svg id="projChart" viewBox="0 0 340 80" preserveAspectRatio="none" style="width:100%;height:80px;overflow:visible"></svg>
+      </div>
+      <div class="tip-card"><span style="font-size:20px">💡</span><div class="tip-text" id="tipText">—</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- PLAN -->
+<div class="section fi" id="planSection" style="display:none">
+  <div class="card">
+    <div class="card-header">
+      <div class="step-num" style="background:rgba(249,115,22,.2)">3</div>
+      <div><h2>תוכנית אישית</h2><p>המלצות מותאמות למטרה ולציר הזמן שלך</p></div>
+    </div>
+    <div class="card-body"><div class="plan-list" id="planList"></div></div>
+  </div>
+</div>
+
+<!-- SIGNUP -->
+<div class="section fi" id="signup">
+  <div class="signup-card">
+    <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:#a5b4fc;margin-bottom:10px;text-transform:uppercase">📲 הצטרף לאפליקציה</div>
+    <h2>שמור את הניתוח<br/>ועקוב אחרי ההתקדמות</h2>
+    <p>מעקב משקל יומי, ניתוח אחוזי שומן חודשי, ותזכורות חכמות — הכל במקום אחד.</p>
+    <div class="form-row">
+      <input class="form-input" type="text" placeholder="שם מלא"/>
+      <input class="form-input" type="email" placeholder="כתובת אימייל"/>
+    </div>
+    <button class="btn-white" onclick="onSignup()">🚀 צור חשבון בחינם</button>
+    <div class="signup-note">ללא כרטיס אשראי · ביטול בכל עת</div>
+    <div id="signupSuccess" class="hidden" style="margin-top:18px;background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);border-radius:12px;padding:14px;font-weight:700;color:var(--green)">
+      ✅ נרשמת בהצלחה! בדוק את האימייל שלך.</div>
+  </div>
+</div>
+
+<footer>
+  <div class="logo" style="font-size:16px">⚡ WeightWise</div>
+  <span>© 2026 WeightWise. כל הזכויות שמורות.</span>
+  <div style="display:flex;gap:20px"><a href="#">פרטיות</a><a href="#">תנאים</a><a href="#">צור קשר</a></div>
+</footer>
+
+<script>
+const $=id=>document.getElementById(id);
+const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('show')}),{threshold:.08});
+document.querySelectorAll('.fi').forEach(el=>obs.observe(el));
+
+
+/* ── state ── */
+let gender='male', actFactor=1.375, goalTab='weight', selectedBfGoal=null, optOpen=false;
+let photoLoaded=false, photoAiBf=null, photoAiConfidence='low', photoAiCategory=''; // AI analysis results
+const SERVER='http://localhost:4568';
+
+/* ── BF goal data ── */
+const BF_GOALS={
+  male:[
+    {pct:'5–9%',  mid:7,   label:'ספורטאי',    color:'#22c55e'},
+    {pct:'10–13%',mid:11.5,label:'מוגדר',       color:'#a3e635'},
+    {pct:'15–17%',mid:16,  label:'כשיר',        color:'#facc15'},
+    {pct:'18–22%',mid:20,  label:'ממוצע',       color:'#f97316'},
+    {pct:'שמירה', mid:null,label:'שמירת רמה',   color:'#6366f1'},
+  ],
+  female:[
+    {pct:'14–17%',mid:15.5,label:'ספורטאית',   color:'#22c55e'},
+    {pct:'18–22%',mid:20,  label:'מוגדרת',     color:'#a3e635'},
+    {pct:'23–27%',mid:25,  label:'כשירה',      color:'#facc15'},
+    {pct:'28–33%',mid:30,  label:'ממוצע',      color:'#f97316'},
+    {pct:'שמירה', mid:null,label:'שמירת רמה',  color:'#6366f1'},
+  ],
+};
+
+/* ── INIT ── */
+function buildBfGoalGrid(){
+  const levels=BF_GOALS[gender];
+  $('bfGoalGrid').innerHTML=levels.map((l,i)=>`
+    <div class="bf-goal-card" id="bfgCard${i}" onclick="selectBfGoal(${i})">
+      <div class="bfg-bar" style="background:${l.color}33;border:1.5px solid ${l.color}66"></div>
+      <div class="bfg-pct" style="color:${l.color}">${l.pct}</div>
+      <div class="bfg-label">${l.label}</div>
+    </div>`).join('');
+  selectedBfGoal=null;
+}
+buildBfGoalGrid();
+updateGoalNote();
+onWeeksChange();
+
+/* ── gender ── */
+function setGender(g){
+  gender=g;
+  $('gMale').classList.toggle('active',g==='male');
+  $('gFemale').classList.toggle('active',g==='female');
+  $('hipGroup').classList.toggle('hidden',g==='male');
+  buildBfGoalGrid();
+}
+
+/* ── activity ── */
+function setAct(btn,val){
+  document.querySelectorAll('.act-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); actFactor=val;
+}
+
+/* ── goal tabs ── */
+function setGoalTab(tab){
+  goalTab=tab;
+  ['weight','bf','maintain'].forEach(t=>{
+    $('tab'+t.charAt(0).toUpperCase()+t.slice(1)).classList.toggle('active',t===tab);
+    $('panel'+t.charAt(0).toUpperCase()+t.slice(1)).classList.toggle('hidden',t!==tab);
+  });
+  $('timelineSection').classList.toggle('hidden', tab==='maintain');
+  onWeeksChange();
+}
+function selectBfGoal(i){
+  document.querySelectorAll('.bf-goal-card').forEach(c=>c.classList.remove('selected'));
+  $('bfgCard'+i).classList.add('selected');
+  selectedBfGoal=BF_GOALS[gender][i];
+  onWeeksChange();
+}
+
+/* ── stepper ── */
+function adj(id,d){
+  const el=$(id), step=parseFloat(el.step)||1;
+  el.value=Math.max(+el.min,Math.min(+el.max,parseFloat(el.value)+d));
+  if(['weight','goalWeight'].includes(id)) updateGoalNote();
+  if(['neck','waist','hip'].includes(id)) updateConfidenceBadge();
+}
+function updateGoalNote(){
+  const w=+$('weight').value||85, gw=+$('goalWeight').value||75;
+  const diff=+(gw-w).toFixed(1);
+  const isGain=diff>0;
+  $('gnDiff').textContent=Math.abs(diff).toFixed(1);
+  $('gnNote').innerHTML=(isGain
+    ?'עלייה של <strong id="gnDiff">'+Math.abs(diff).toFixed(1)+'</strong> ק"ג 💪'
+    :'ירידה של <strong id="gnDiff">'+Math.abs(diff).toFixed(1)+'</strong> ק"ג');
+  onWeeksChange();
+}
+$('weight').addEventListener('input',()=>{updateGoalNote();onWeeksChange()});
+$('goalWeight').addEventListener('input',()=>{updateGoalNote();onWeeksChange()});
+
+/* ── WEEKS SLIDER ── */
+function onWeeksChange(){
+  const weeks=+$('weeksSlider').value;
+  $('weeksNum').textContent=weeks;
+
+  const w=+$('weight').value||85;
+  // kgDelta: positive = need to lose, negative = need to gain
+  let kgDelta=0;
+  if(goalTab==='weight'){
+    kgDelta=+(w-(+$('goalWeight').value||75)).toFixed(1); // positive=lose, negative=gain
+  } else if(goalTab==='bf' && selectedBfGoal && selectedBfGoal.mid){
+    const h=+$('height').value||180, age=+$('age').value||28;
+    const bfEst=estimateBf(w,h,age,gender==='male',false,0,0,0);
+    const curFat=w*bfEst/100;
+    const targetFat=w*selectedBfGoal.mid/100;
+    kgDelta=+(curFat-targetFat).toFixed(1);
+  }
+
+  const isGain=kgDelta<0;
+  const absDelta=Math.abs(kgDelta);
+  const dailyChange=absDelta<0.3 ? 0 : Math.round(absDelta*7700/(weeks*7));
+  const weeklyChange=absDelta>0 ? +(absDelta/weeks).toFixed(2) : 0;
+  const d=new Date(); d.setDate(d.getDate()+weeks*7);
+  const months=['ינו','פבר','מרץ','אפר','מאי','יונ','יול','אוג','ספט','אוק','נוב','דצ'];
+
+  $('tDeficitLabel').textContent=isGain?'עודף':'גירעון';
+  $('tDeficit').textContent=dailyChange;
+  $('tWeekly').textContent=(isGain?'+':'-')+weeklyChange;
+  $('tDate').textContent=months[d.getMonth()]+' '+d.getFullYear();
+
+  const chip=$('tDeficitChip');
+  if(isGain){
+    chip.className='tinfo-chip ok';
+  } else {
+    const isHigh=dailyChange>700;
+    chip.className='tinfo-chip '+(isHigh?'warn':dailyChange>0?'ok':'');
+  }
+}
+
+/* ── PHOTO ── */
+function onPhoto(e){
+  const file=e.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    // Show preview immediately
+    $('photoPreview').src=ev.target.result;
+    $('uploadZone').classList.add('photo-has-img');
+    photoLoaded=true;
+    showAiLoading();
+    // Resize before sending to API (max 1200px, max ~2MB)
+    resizeAndSend(ev.target.result);
+  };
+  reader.readAsDataURL(file);
+}
+
+function resizeAndSend(dataUrl){
+  const img=new Image();
+  img.onload=()=>{
+    const MAX=1200;
+    let {width:w, height:h}=img;
+    if(w>MAX||h>MAX){
+      const ratio=Math.min(MAX/w,MAX/h);
+      w=Math.round(w*ratio); h=Math.round(h*ratio);
+    }
+    const canvas=document.createElement('canvas');
+    canvas.width=w; canvas.height=h;
+    canvas.getContext('2d').drawImage(img,0,0,w,h);
+    // Use JPEG with 0.85 quality for size efficiency
+    const resizedUrl=canvas.toDataURL('image/jpeg',0.85);
+    const [header, b64]=resizedUrl.split(',');
+    runAiAnalysis(b64, 'image/jpeg');
+  };
+  img.src=dataUrl;
+}
+
+function removePhoto(e){
+  e.stopPropagation();
+  $('photoInput').value=''; $('photoPreview').src='';
+  $('uploadZone').classList.remove('photo-has-img');
+  photoLoaded=false; photoAiBf=null; photoAiConfidence='low'; photoAiCategory='';
+  showAiIdle();
+}
+
+function showAiIdle(){
+  const panel=$('aiResultPanel');
+  panel.className='ai-result-panel';
+  panel.innerHTML=`<div class="ai-idle-icon">🤖</div>
+    <div class="ai-idle-text">העלה תמונה כדי שהבינה המלאכותית<br/>תנתח את הרכב גוף שלך</div>`;
+}
+
+function showAiLoading(){
+  const panel=$('aiResultPanel');
+  panel.className='ai-result-panel loading';
+  panel.innerHTML=`<div class="spinner"></div>
+    <div class="ai-loading-text">מנתח תמונה עם Claude Vision<span class="ai-loading-dots"></span></div>
+    <div style="font-size:11px;color:var(--muted);margin-top:6px">זה עשוי לקחת 10–20 שניות</div>`;
+}
+
+function showAiResult(result){
+  const cats_m=[{max:8,l:'ספורטאי',c:'#22c55e'},{max:15,l:'כשיר',c:'#a3e635'},{max:20,l:'ממוצע',c:'#facc15'},{max:25,l:'גבוה',c:'#f97316'},{max:100,l:'גבוה מאוד',c:'#ef4444'}];
+  const cats_f=[{max:17,l:'ספורטאית',c:'#22c55e'},{max:22,l:'כשירה',c:'#a3e635'},{max:28,l:'ממוצע',c:'#facc15'},{max:35,l:'גבוה',c:'#f97316'},{max:100,l:'גבוה מאוד',c:'#ef4444'}];
+  const bf=result.bodyFatPercent;
+  const cat=(gender==='male'?cats_m:cats_f).find(c=>bf<=c.max)||{l:'—',c:'#9ca3af'};
+  const confColors={low:'var(--orange)',medium:'#facc15',high:'var(--green)'};
+  const confLabels={low:'נמוכה',medium:'בינונית',high:'גבוהה'};
+  const conf=result.confidence||'medium';
+  const indicators=(result.keyIndicators||[]).slice(0,4);
+
+  const panel=$('aiResultPanel');
+  panel.className='ai-result-panel done';
+  panel.innerHTML=`
+    <div class="ai-result-label">ניתוח תמונה — Claude Vision AI</div>
+    <div style="display:flex;align-items:baseline;gap:4px">
+      <div class="ai-result-bf" style="color:${cat.c}">${bf.toFixed(1)}</div>
+      <div style="font-size:19px;font-weight:700;color:var(--muted)">%</div>
+    </div>
+    <span class="ai-result-cat" style="background:${cat.c}22;color:${cat.c}">${cat.l}</span>
+    ${result.analysis?`<div class="ai-analysis-text">${result.analysis}</div>`:''}
+    ${(result.bmiBaseline||result.visualAdjustment!==undefined)?`
+    <div style="display:flex;gap:6px;margin-top:8px;width:100%;flex-wrap:wrap">
+      ${result.bmiBaseline?`<span class="ai-ind-chip">📊 BMI baseline: ${result.bmiBaseline}%</span>`:''}
+      ${result.visualAdjustment!==undefined?`<span class="ai-ind-chip" style="color:${result.visualAdjustment<0?'#4ade80':'#fb923c'}">${result.visualAdjustment>0?'+':''}${result.visualAdjustment}% ויזואלי</span>`:''}
+    </div>`:''}
+    ${indicators.length?`<div class="ai-indicators">${indicators.map(ind=>`<span class="ai-ind-chip">${ind}</span>`).join('')}</div>`:''}
+    <div class="ai-conf-row">
+      <div style="font-size:11px;color:var(--muted)">🤖 Claude Vision + נתונים</div>
+      <div class="ai-conf-badge" style="color:${confColors[conf]||'#facc15'}">
+        ●&nbsp;ביטחון ${confLabels[conf]||conf}
+      </div>
+    </div>`;
+}
+
+function showAiError(msg){
+  const panel=$('aiResultPanel');
+  panel.className='ai-result-panel error';
+  panel.innerHTML=`<div style="font-size:28px;margin-bottom:8px">⚠️</div>
+    <div style="font-size:13px;color:#fca5a5;margin-bottom:8px">שגיאה בניתוח התמונה</div>
+    <div style="font-size:11px;color:var(--muted);line-height:1.6">${msg||'ודא שהשרת פועל על port 4568'}</div>
+    <div style="font-size:10px;color:var(--muted);margin-top:8px">הניתוח יבוסס על נתונים בלבד</div>`;
+}
+
+async function runAiAnalysis(imageBase64, mediaType){
+  showAiLoading();
+  photoAiBf=null;
+
+  const h=+$('height').value||180, w=+$('weight').value||85, age=+$('age').value||28;
+  const hasMeas=optOpen&&+$('neck').value&&+$('waist').value;
+
+  const body={
+    imageBase64, mediaType,
+    height:h, weight:w, age, gender,
+    ...(hasMeas?{neck:+$('neck').value, waist:+$('waist').value}:{}),
+    ...(hasMeas && gender==='female' && +$('hip').value ? {hip:+$('hip').value}:{}),
+  };
+
+  try{
+    const res=await fetch(`${SERVER}/analyze`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(body),
+    });
+    if(!res.ok){ const t=await res.text(); throw new Error(t||res.statusText); }
+    const result=await res.json();
+    if(result.error) throw new Error(result.error);
+    if(result.bodyFatPercent===null || result.bodyFatPercent===undefined){
+      // Claude couldn't estimate — show analysis but don't use in calculation
+      showAiError(result.analysis || 'לא ניתן להעריך אחוזי שומן מהתמונה. נסה תמונה שמראה את הגוף בצורה ברורה.');
+      return;
+    }
+    photoAiBf=result.bodyFatPercent;
+    photoAiConfidence=result.confidence||'medium';
+    photoAiCategory=result.category||'';
+    showAiResult(result);
+  }catch(err){
+    console.error('AI analysis error:',err);
+    showAiError(err.message);
+    photoAiBf=null;
+  }
+}
+
+/* ── optional ── */
+function toggleOpt(){
+  optOpen=!optOpen;
+  $('optBody').classList.toggle('open',optOpen);
+  $('optArrow').classList.toggle('open',optOpen);
+  updateConfidenceBadge();
+}
+
+/* ── NAVY ── */
+function calcNavy(w,h,isMale,neck,waist,hip){
+  let v=isMale
+    ? 86.010*Math.log10(waist-neck)-70.041*Math.log10(h)+36.76
+    : 163.205*Math.log10(waist+hip-neck)-97.684*Math.log10(h)-78.387;
+  return Math.max(4,Math.min(55,v));
+}
+
+/* ── ESTIMATE BF (composite) ── */
+function estimateBf(w,h,age,isMale,hasMeas,neck,waist,hip){
+  const bmi=w/((h/100)**2);
+  const bmiBf=Math.max(4,Math.min(55, isMale?1.20*bmi+0.23*age-16.2:1.20*bmi+0.23*age-5.4));
+
+  let weights=[[bmiBf,1.0]];
+  // AI photo analysis is the dominant signal — weight 4.0 (high) / 2.5 (medium) / 1.5 (low)
+  if(photoAiBf!==null){
+    const aiWeight={high:4.0, medium:2.5, low:1.5}[photoAiConfidence]||2.5;
+    weights.push([photoAiBf, aiWeight]);
+  }
+  if(hasMeas && neck && waist){
+    const nb=calcNavy(w,h,isMale,neck,waist,hip);
+    weights.push([nb,1.8]);
+  }
+  const sumW=weights.reduce((a,x)=>a+x[1],0);
+  const wavg=weights.reduce((a,x)=>a+x[0]*x[1],0)/sumW;
+  return Math.max(4,Math.min(55,wavg));
+}
+
+/* ── ANALYZE ── */
+function analyze(){
+  const h=+$('height').value, w=+$('weight').value, age=+$('age').value;
+  const isMale=gender==='male';
+  const hasMeas=optOpen&&+$('neck').value&&+$('waist').value;
+  const neck=+$('neck').value, waist=+$('waist').value, hip=isMale?0:+$('hip').value;
+  const weeks=+$('weeksSlider').value;
+
+  const bfRaw=estimateBf(w,h,age,isMale,hasMeas,neck,waist,hip);
+  const bf=Math.round(bfRaw*10)/10;
+  const bmi=Math.round(w/((h/100)**2)*10)/10;
+  const leanMass=Math.round(w*(1-bf/100)*10)/10;
+  const fatMass=+(w-leanMass).toFixed(1);
+  const bmr=Math.round(10*w+6.25*h-5*age+(isMale?5:-161));
+  const tdee=Math.round(bmr*actFactor);
+
+  /* ── goal ── */
+  // kgDelta: positive = lose, negative = gain
+  let kgDelta=0, isMaintain=false, isGain=false, goalLabel='';
+  if(goalTab==='maintain'){
+    isMaintain=true; goalLabel='שמירת משקל';
+  } else if(goalTab==='weight'){
+    const tgt=+$('goalWeight').value;
+    kgDelta=+(w-tgt).toFixed(1); // positive=lose, negative=gain
+    isGain=kgDelta<0;
+    goalLabel=isGain?`עלייה ל-${tgt} ק"ג 💪`:`ירידה ל-${tgt} ק"ג`;
+  } else {
+    if(!selectedBfGoal){alert('בחר יעד ויזואלי');return;}
+    if(!selectedBfGoal.mid){isMaintain=true;goalLabel='שמירת רמת שומן';}
+    else{
+      const tFat=w*selectedBfGoal.mid/100;
+      kgDelta=+(fatMass-tFat).toFixed(1);
+      isGain=kgDelta<0;
+      goalLabel=`הגעה ל-${selectedBfGoal.pct} — ${selectedBfGoal.label}`;
+    }
+  }
+
+  const absDelta=Math.abs(kgDelta);
+  // daily caloric change: deficit for loss, surplus for gain
+  let dailyChange=0;
+  if(!isMaintain && absDelta>0.3){
+    dailyChange=Math.round(absDelta*7700/(weeks*7));
+  }
+  // For gain: cap surplus at 500 cal/day (lean bulk), for loss: cap deficit at 1000
+  if(isGain) dailyChange=Math.min(dailyChange, 500);
+
+  const recCals=isMaintain ? tdee
+    : isGain ? Math.round(tdee+dailyChange)
+    : Math.max(1200, tdee-dailyChange);
+
+  // Protein: higher on gain (muscle building), normal on loss
+  const protein=isGain ? Math.round(leanMass*2.4) : Math.round(leanMass*2.2);
+  const fats=Math.round(recCals*0.25/9);
+  const carbs=Math.round((recCals-protein*4-fats*9)/4);
+
+  /* ── categories ── */
+  const cats_m=[{max:8,l:'ספורטאי',c:'#22c55e'},{max:15,l:'כשיר',c:'#a3e635'},{max:20,l:'ממוצע',c:'#facc15'},{max:25,l:'גבוה',c:'#f97316'},{max:100,l:'גבוה מאוד',c:'#ef4444'}];
+  const cats_f=[{max:17,l:'ספורטאית',c:'#22c55e'},{max:22,l:'כשירה',c:'#a3e635'},{max:28,l:'ממוצע',c:'#facc15'},{max:35,l:'גבוה',c:'#f97316'},{max:100,l:'גבוה מאוד',c:'#ef4444'}];
+  const cat=(isMale?cats_m:cats_f).find(c=>bf<=c.max);
+  const bmiCats=[{max:18.5,l:'תת משקל',c:'#60a5fa'},{max:25,l:'תקין',c:'#22c55e'},{max:30,l:'עודף משקל',c:'#facc15'},{max:100,l:'השמנה',c:'#ef4444'}];
+  const bmiCat=bmiCats.find(c=>bmi<=c.max);
+  const bfMin=isMale?3:8, bfMax=isMale?46:56;
+  const markerPct=Math.min(96,Math.max(4,(bf-bfMin)/(bfMax-bfMin)*100));
+
+  /* ── sources subtitle ── */
+  const srcs=[];
+  srcs.push('BMI');
+  if(photoAiBf!==null) srcs.push('Claude Vision AI');
+  if(hasMeas) srcs.push('Navy');
+  $('resultSubtitle').textContent='מצולב: '+srcs.join(' + ');
+
+  /* ── populate ── */
+  $('rBf').textContent=bf; $('rBf').style.color=cat.c;
+  $('rBfCat').textContent=cat.l; $('rBfCat').style.background=cat.c+'22'; $('rBfCat').style.color=cat.c;
+  $('bfMarker').style.left=markerPct+'%';
+  $('rBmi').textContent=bmi; $('rBmiCat').textContent=bmiCat.l;
+  $('rBmiCat').style.background=bmiCat.c+'22'; $('rBmiCat').style.color=bmiCat.c;
+  $('rLean').textContent=leanMass;
+  $('rBmr').textContent=bmr.toLocaleString(); $('rTdee').textContent=tdee.toLocaleString();
+  $('rChangeIcon').textContent=isGain?'📈':'📉';
+  $('rChangeLbl').textContent=isGain?'לעלייה':'לירידה';
+  $('rToLose').textContent=absDelta+'ק"ג'; $('rWeeks').textContent=isMaintain?'∞':weeks;
+  $('rCals').textContent=recCals.toLocaleString();
+  $('rCalsNote').textContent=isMaintain
+    ?`TDEE שלך — אכול כך לשמירת המשקל הנוכחי`
+    :isGain
+    ?`עודף ${dailyChange} קל מעל TDEE (${tdee.toLocaleString()}) — ${weeks} שבועות`
+    :`גירעון ${dailyChange} קל מה-TDEE (${tdee.toLocaleString()}) — ${weeks} שבועות`;
+  $('rDeficitLabel').textContent=isGain?'עודף':'גירעון';
+  $('rDeficit').textContent=dailyChange;
+  $('rDeficit').style.color=isGain?'var(--green)':'#60a5fa';
+  $('rProtein').textContent=protein+'g'; $('rCarbs').textContent=carbs+'g'; $('rFats').textContent=fats+'g';
+  $('chartBadge').textContent=isMaintain?'שמירה':weeks+' שבועות';
+
+  const months=['ינו','פבר','מרץ','אפר','מאי','יונ','יול','אוג','ספט','אוק','נוב','דצ'];
+  const dEnd=new Date(); dEnd.setDate(dEnd.getDate()+weeks*7);
+  const dateStr=months[dEnd.getMonth()]+' '+dEnd.getFullYear();
+
+  $('goalBannerTitle').textContent=(isGain?'💪':'🎯')+' '+goalLabel;
+  $('goalBannerDesc').textContent=isMaintain
+    ?'מטרתך לשמור על המשקל הנוכחי. צרוך בדיוק את ה-TDEE שלך ושמור על אימונים.'
+    :isGain
+    ?`תגיע ליעד תוך ${weeks} שבועות עם עודף של ${dailyChange} קל/יום. ${dailyChange>500?'⚠️ עודף גבוה — תעדיף גיוס שריר איטי ונקי (lean bulk).':'✅ קצב lean bulk בטוח — +${(absDelta/weeks).toFixed(2)}ק"ג/שבוע.'}`
+    :`תגיע ליעד תוך ${weeks} שבועות עם גירעון יומי של ${dailyChange} קלוריות. ${dailyChange>700?'⚠️ גירעון גבוה — שקול ציר זמן ארוך יותר.':'✅ קצב בטוח ואפקטיבי.'}`;
+  $('goalStats').innerHTML=`
+    <div class="goal-stat"><div class="gs-val" style="color:${isGain?'var(--green)':'#f472b6'}">${absDelta}</div><div class="gs-lbl">ק"ג ${isGain?'לעלייה':'לירידה'}</div></div>
+    <div class="goal-stat"><div class="gs-val" style="color:var(--orange)">${isMaintain?'—':weeks}</div><div class="gs-lbl">שבועות</div></div>
+    <div class="goal-stat"><div class="gs-val" style="color:var(--primary)">${isMaintain?'—':dateStr}</div><div class="gs-lbl">תאריך יעד</div></div>
+    <div class="goal-stat"><div class="gs-val" style="color:${isGain?'var(--green)':'#60a5fa'}">${dailyChange||'—'}</div><div class="gs-lbl">קל ${isGain?'עודף':'גירעון'}/יום</div></div>`;
+
+  $('tipText').textContent=isGain
+    ?(dailyChange>400?'⚠️ עודף גדול עלול להביא לצבירת שומן מיותר. עדיף lean bulk: 200–300 קל/יום עם כוח 4× בשבוע.'
+      :'💪 lean bulk: אכול עודף קטן ואמן כוח כבד — 70-80% מהעלייה תהיה שריר.')
+    :dailyChange>700
+    ?`⚠️ גירעון של ${dailyChange} קל/יום גבוה — שקול להאריך ל-${Math.round(absDelta*7700/500/7)} שבועות לקצב בריא יותר.`
+    :srcs.length===3?'✅ ניתוח מלא ומדויק: BMI + Claude Vision AI + מדידות Navy מצולבים בשקלול משוקלל.'
+    :srcs.length===2 && photoAiBf!==null?'✅ ניתוח מדויק: BMI + Claude Vision AI מצולבים. הוסף מדידות לדיוק מרבי.'
+    :srcs.length===2?'ℹ️ ניתוח טוב. הוסף תמונה לניתוח AI אמיתי לדיוק מרבי.'
+    :'ℹ️ ניתוח בסיסי. העלה תמונה — Claude Vision ינתח את גופך בצורה מדויקת.';
+
+  drawChart(w, isGain ? w+absDelta : w-absDelta, weeks, isGain);
+  buildPlan(bf, isMale, cat, isMaintain, isGain, goalTab, selectedBfGoal, weeks, dailyChange);
+
+  $('resultsCard').classList.remove('hidden');
+  $('planSection').style.display='block';
+  setTimeout(()=>$('results').scrollIntoView({behavior:'smooth'}),200);
+}
+
+/* ── CHART ── */
+function drawChart(wNow, wTarget, weeks, isGain=false){
+  const svg=$('projChart');
+  const W=340,H=80,pl=36,pr=10,pt=10,pb=18,iW=W-pl-pr,iH=H-pt-pb;
+  const n=Math.max(1,Math.min(weeks,52)), pts=[];
+  const diff=Math.max(0.1,Math.abs(wNow-wTarget));
+  const color=isGain?'#a78bfa':'#22c55e'; // purple for gain, green for loss
+
+  for(let i=0;i<=n;i++){
+    const f=i/n, change=diff*(1-Math.pow(1-f,1.3));
+    // gain: line goes UP (y decreases in SVG), loss: line goes DOWN (y increases)
+    const yFrac=isGain ? 1-Math.min(1,change/diff) : Math.min(1,change/diff);
+    pts.push({x:pl+f*iW, y:pt+yFrac*iH});
+  }
+
+  const topVal=isGain?wTarget:wNow, botVal=isGain?wNow:wTarget;
+  const pd=pts.map((p,i)=>`${i?'L':'M'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+  // Fill area — for gain fill upward, for loss fill downward
+  const fillBase=isGain?pt+iH:pt+iH;
+  const ad=pd+` L${pl+iW},${pt+iH} L${pl},${pt+iH} Z`;
+
+  svg.innerHTML=`<defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="${color}" stop-opacity=".35"/>
+    <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+  </linearGradient></defs>
+  ${[0,.5,1].map(r=>`<line x1="${pl}" y1="${pt+r*iH}" x2="${pl+iW}" y2="${pt+r*iH}" stroke="#374151" stroke-width=".5" stroke-dasharray="3,3"/>`).join('')}
+  <text x="${pl-4}" y="${pt+5}" fill="#6b7280" font-size="9" text-anchor="end" font-family="Assistant">${topVal.toFixed(1)}</text>
+  <text x="${pl-4}" y="${pt+iH+4}" fill="#6b7280" font-size="9" text-anchor="end" font-family="Assistant">${botVal.toFixed(1)}</text>
+  <path d="${ad}" fill="url(#cg)"/>
+  <path d="${pd}" stroke="${color}" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="${pts[0].x.toFixed(1)}" cy="${pts[0].y.toFixed(1)}" r="4" fill="${color}"/>
+  <circle cx="${pts[n].x.toFixed(1)}" cy="${pts[n].y.toFixed(1)}" r="4" fill="${color}"/>
+  <text x="${pl}" y="${H-2}" fill="#6b7280" font-size="9" text-anchor="middle" font-family="Assistant">היום</text>
+  <text x="${pl+iW}" y="${H-2}" fill="#6b7280" font-size="9" text-anchor="middle" font-family="Assistant">שבוע ${weeks}</text>`;
+}
+
+/* ── PLAN ── */
+const PLANS={
+  maintain:{
+    male:[
+      {c:'indigo',t:'⚖️ שמור על ה-TDEE שלך — אכול ±100 קל ממנו, ושקול את עצמך כל שבוע באותו יום.'},
+      {c:'green',t:'🏋️ כוח 3–4× בשבוע — הדרך הטובה ביותר לשמירת מסת שריר ומניעת עלייה בשומן.'},
+      {c:'orange',t:'📊 תנודות של 1–2 ק"ג ביום הן נורמליות — עקוב אחרי ממוצע שבועי, לא מדידות יומיות.'},
+    ],
+    female:[
+      {c:'indigo',t:'⚖️ שמרי על ה-TDEE שלך. תנודות שבועיות קטנות הן נורמליות בגלל מחזור וסטרס.'},
+      {c:'green',t:'💃 שלבי כוח + פילאטיס + יוגה — השילוב הטוב ביותר לשמירת הרכב גוף לאורך זמן.'},
+      {c:'orange',t:'🩺 עקבי אחר ברזל וויטמין D — חוסרים נפוצים שמשפיעים על אנרגיה ורכב גוף.'},
+    ],
+  },
+  lose:{
+    male:{
+      low:[
+        {c:'green',t:'🎯 רמת שומן נמוכה — גירעון קל (300–400 קל) עם כוח 4× בשבוע הוא המסלול הנכון.'},
+        {c:'indigo',t:'💪 חלבון 2–2.2g/ק"ג שומר על שריר בגירעון — עוף, דגים, ביצים, גבינה.'},
+        {c:'orange',t:'🛌 שינה 7–9 שעות מגדילה שריפת שומן ומפחיתה גרלין (הורמון רעב) ב-20%.'},
+      ],
+      mid:[
+        {c:'orange',t:'📉 גירעון 400–500 קל/יום = ירידה של 0.4–0.5 ק"ג לשבוע ללא פגיעה בשריר.'},
+        {c:'indigo',t:'🏋️ כוח 3–4× + 8,000–10,000 צעדים ביום — שינוי הרכב גוף אמיתי.'},
+        {c:'green',t:'🥗 50% ירקות, 25% חלבון, 25% פחמימות מורכבות בכל ארוחה.'},
+      ],
+      high:[
+        {c:'orange',t:'⚠️ רמת שומן גבוהה — ייעוץ עם דיאטן קליני מומלץ לתוכנית בטוחה.'},
+        {c:'indigo',t:'🚶 הליכה 30–45 דקות ביום — הצעד הראשון והחשוב ביותר.'},
+        {c:'green',t:'🥤 הפחת סוכרים פשוטים ושתה 2.5 ליטר מים — חיסכון של 300–500 קל/יום.'},
+      ],
+    },
+    female:{
+      low:[
+        {c:'green',t:'🏃‍♀️ רמה מצוינת! כוח + HIIT קל 3–4× בשבוע לשיפור הגדרה ושמירת טונוס.'},
+        {c:'indigo',t:'🥑 שומנים בריאים (אבוקדו, אגוזים) תומכים בהורמונים ובשריפת שומן.'},
+        {c:'orange',t:'💊 בדקי ברזל וויטמין D — חוסרים נפוצים שפוגעים באנרגיה.'},
+      ],
+      mid:[
+        {c:'orange',t:'📉 גירעון 350–450 קל/יום — ירידה בטוחה ללא פגיעה בהורמונים.'},
+        {c:'indigo',t:'🏋️‍♀️ כוח 3× + קרדיו 2× — השילוב האפקטיבי ביותר.'},
+        {c:'green',t:'🩺 תכנני אימונים לפי שלבי המחזור — אנרגיה משתנה ב-4 שלבים.'},
+      ],
+      high:[
+        {c:'orange',t:'⚠️ ייעוץ עם דיאטנית קלינית — תוכנית בטוחה ואישית.'},
+        {c:'indigo',t:'🚶‍♀️ הליכה 30–45 דקות ביום — ההתחלה הנכונה.'},
+        {c:'green',t:'💧 2 ליטר מים ביום + הפחתת מזון מעובד.'},
+      ],
+    },
+  },
+};
+const GAIN_PLANS={
+  male:[
+    {c:'indigo',t:'🏋️ כוח כבד 4× בשבוע — ללא אימוני כוח, העודף הקלורי ילך לשומן, לא לשריר.'},
+    {c:'green', t:'🥩 חלבון 2.2–2.4g/ק"ג גוף — הבניין של מסת שריר. עוף, ביצים, דגים, גבינת קוטג\'.'},
+    {c:'orange',t:'📈 lean bulk: עודף של 200–300 קל/יום = 70-80% שריר, 20-30% שומן. יותר מדי עודף → שומן.'},
+  ],
+  female:[
+    {c:'indigo',t:'🏋️‍♀️ כוח 3–4× בשבוע — חיוני לבניית שריר. נשים בונות שריר לאט יותר, אבל בצורה נקייה.'},
+    {c:'green', t:'🥩 חלבון 2.0–2.2g/ק"ג — עוף, יוגורט יווני, קטניות. חיוני לבניית מסה.'},
+    {c:'orange',t:'📈 עודף קטן של 150–250 קל/יום — נשים רגישות יותר לצבירת שומן בעודף גדול.'},
+  ],
+};
+
+function buildPlan(bf,isMale,cat,isMaintain,isGain,gTab,bfGoal,weeks,dailyChange){
+  let items;
+  const g=isMale?'male':'female';
+  if(isMaintain){
+    items=[...PLANS.maintain[g]];
+  } else if(isGain){
+    items=[...GAIN_PLANS[g]];
+    if(dailyChange>400) items.push({c:'orange',t:`⚠️ עודף ${dailyChange} קל/יום גבוה — הורד ל-200–300 קל/יום לגיוס נקי של שריר.`});
+  } else {
+    const tier=bf<=(isMale?15:22)?'low':bf<=(isMale?25:35)?'mid':'high';
+    items=[...PLANS.lose[g][tier]];
+    if(dailyChange>700) items.push({c:'orange',t:`⏰ גירעון של ${dailyChange} קל/יום אגרסיבי. האריך ל-${Math.round(+$('weight').value*0.1*7700/500/7)} שבועות לקצב בריא יותר.`});
+    if(gTab==='bf'&&bfGoal&&bfGoal.mid&&bfGoal.mid<=(isMale?10:18)) items.push({c:'indigo',t:'🏅 יעד ספורטאי דורש קצב איטי — 0.3–0.5% שומן לשבוע שומר על מסת שריר.'});
+  }
+  $('planList').innerHTML=items.map(i=>`
+    <div class="plan-item">
+      <div class="pdot" style="background:${i.c==='green'?'var(--green)':i.c==='orange'?'var(--orange)':'var(--primary)'}"></div>
+      <div>${i.t}</div>
+    </div>`).join('');
+}
+
+function onSignup(){ $('signupSuccess').classList.remove('hidden'); }
+</script>
+</body>
+</html>

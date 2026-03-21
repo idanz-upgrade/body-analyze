@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>קלורי AI — עקוב אחרי התזונה שלך</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Assistant:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #111827;
+      --card:     #1f2937;
+      --border:   #374151;
+      --primary:  #6366f1;
+      --green:    #22c55e;
+      --orange:   #f97316;
+      --text:     #f9fafb;
+      --muted:    #9ca3af;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Assistant', sans-serif;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ─── NAV ─────────────────────────────────────── */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 40px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: rgba(17,24,39,.85);
+      backdrop-filter: blur(12px);
+      z-index: 100;
+    }
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 22px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: 15px; transition: color .2s; }
+    .nav-links a:hover { color: var(--text); }
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      padding: 10px 24px;
+      font-family: 'Assistant', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity .2s, transform .2s;
+    }
+    .btn-primary:hover { opacity: .85; transform: translateY(-1px); }
+
+    /* ─── HERO ────────────────────────────────────── */
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      gap: 60px;
+      padding: 80px 40px 60px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(99,102,241,.15);
+      border: 1px solid rgba(99,102,241,.3);
+      border-radius: 50px;
+      padding: 6px 14px;
+      font-size: 13px;
+      color: #a5b4fc;
+      margin-bottom: 20px;
+    }
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(36px, 5vw, 56px);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 20px;
+    }
+    .hero h1 span { color: var(--primary); }
+    .hero p {
+      color: var(--muted);
+      font-size: 18px;
+      margin-bottom: 36px;
+      max-width: 440px;
+    }
+    .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn-outline {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 10px 24px;
+      font-family: 'Assistant', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color .2s, transform .2s;
+    }
+    .btn-outline:hover { border-color: var(--primary); transform: translateY(-1px); }
+
+    /* Phone mockup */
+    .phone-wrap { display: flex; justify-content: center; }
+    .phone {
+      width: 260px;
+      background: var(--card);
+      border-radius: 36px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      box-shadow: 0 40px 80px rgba(0,0,0,.5);
+      animation: float 4s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-12px); }
+    }
+    .phone-header {
+      background: #161e2e;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      border-bottom: 1px solid var(--border);
+    }
+    .phone-body { padding: 20px 16px; }
+    .scan-area {
+      background: #161e2e;
+      border-radius: 16px;
+      height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    .scan-food-emoji { font-size: 56px; }
+    .scan-line {
+      position: absolute;
+      left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--green), transparent);
+      animation: scan 2s linear infinite;
+    }
+    @keyframes scan { 0% { top: 10%; } 100% { top: 90%; } }
+    .annotation {
+      position: absolute;
+      background: rgba(255,255,255,.92);
+      color: #111;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+    .a1 { top: 20%; right: 8%; }
+    .a2 { bottom: 20%; left: 4%; }
+    .calories-card {
+      background: #161e2e;
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .cal-icon { font-size: 24px; }
+    .cal-label { font-size: 11px; color: var(--muted); }
+    .cal-value { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; line-height: 1; }
+    .macros-row { display: flex; gap: 8px; }
+    .macro-chip {
+      flex: 1;
+      background: #161e2e;
+      border-radius: 10px;
+      padding: 8px 6px;
+      text-align: center;
+    }
+    .macro-chip .mc-icon { font-size: 14px; }
+    .macro-chip .mc-label { font-size: 9px; color: var(--muted); display: block; }
+    .macro-chip .mc-val { font-size: 14px; font-weight: 700; display: block; }
+
+    /* ─── STATS BAR ────────────────────────────────── */
+    .stats-bar {
+      background: var(--card);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 28px 40px;
+      display: flex;
+      justify-content: center;
+      gap: 80px;
+    }
+    .stat-item { text-align: center; }
+    .stat-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 36px;
+      font-weight: 800;
+      display: block;
+      line-height: 1;
+    }
+    .stat-label { font-size: 13px; color: var(--muted); margin-top: 4px; display: block; }
+
+    /* ─── FEATURES ─────────────────────────────────── */
+    .features {
+      max-width: 1100px;
+      margin: 70px auto;
+      padding: 0 40px;
+    }
+    .section-tag {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--primary);
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(26px, 3.5vw, 38px);
+      font-weight: 800;
+      margin-bottom: 48px;
+    }
+    .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .feature-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px 24px;
+      transition: border-color .25s, transform .25s;
+    }
+    .feature-card:hover { border-color: var(--primary); transform: translateY(-4px); }
+    .feature-icon {
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px;
+      margin-bottom: 20px;
+    }
+    .fi-green  { background: rgba(34,197,94,.12); }
+    .fi-indigo { background: rgba(99,102,241,.12); }
+    .fi-orange { background: rgba(249,115,22,.12); }
+    .feature-card h3 { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+    .feature-card p { color: var(--muted); font-size: 14px; line-height: 1.7; }
+
+    /* ─── STREAK SECTION ───────────────────────────── */
+    .streak-section {
+      max-width: 1100px;
+      margin: 0 auto 80px;
+      padding: 0 40px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+    .streak-visual {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 32px;
+    }
+    .streak-top { display: flex; align-items: center; gap: 16px; margin-bottom: 28px; }
+    .streak-fire { font-size: 52px; line-height: 1; }
+    .streak-num { font-family: 'Syne', sans-serif; font-size: 52px; font-weight: 800; color: var(--orange); line-height: 1; }
+    .streak-label { font-size: 14px; color: var(--muted); margin-top: 4px; }
+    .days-row { display: flex; justify-content: space-between; gap: 6px; }
+    .day-circle {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700;
+      background: #161e2e; color: var(--muted);
+    }
+    .day-circle.done { background: var(--orange); color: #fff; }
+    .chart-mini { margin-top: 24px; background: #161e2e; border-radius: 14px; padding: 16px; }
+    .chart-title { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+    svg.sparkline { width: 100%; height: 60px; overflow: visible; }
+
+    /* ─── CTA BANNER ───────────────────────────────── */
+    .cta-banner {
+      max-width: 1020px;
+      margin: 0 auto 60px;
+      background: linear-gradient(135deg, #312e81 0%, #4f46e5 50%, #6366f1 100%);
+      border-radius: 28px;
+      padding: 56px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 32px;
+    }
+    .cta-banner h2 { font-family: 'Syne', sans-serif; font-size: clamp(24px, 3vw, 36px); font-weight: 800; max-width: 480px; }
+    .btn-white {
+      background: #fff; color: #4f46e5; border: none; border-radius: 50px;
+      padding: 14px 32px; font-family: 'Assistant', sans-serif;
+      font-size: 16px; font-weight: 700; cursor: pointer; white-space: nowrap;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .btn-white:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.25); }
+
+    /* ─── FOOTER ───────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    footer a { color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--text); }
+
+    /* ─── RESPONSIVE ───────────────────────────────── */
+    @media (max-width: 768px) {
+      nav { padding: 16px 20px; }
+      .nav-links { display: none; }
+      .hero { grid-template-columns: 1fr; padding: 48px 20px 32px; gap: 40px; }
+      .hero p { max-width: 100%; }
+      .stats-bar { gap: 32px; padding: 24px 20px; flex-wrap: wrap; }
+      .features { padding: 0 20px; }
+      .features-grid { grid-template-columns: 1fr; }
+      .streak-section { grid-template-columns: 1fr; padding: 0 20px; }
+      .cta-banner { flex-direction: column; text-align: center; padding: 40px 28px; margin: 0 20px 48px; }
+      footer { flex-direction: column; gap: 12px; text-align: center; padding: 24px 20px; }
+    }
+
+    /* ─── SCROLL ANIMATIONS ────────────────────────── */
+    .fade-in { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">🔥 קלורי AI</div>
+  <ul class="nav-links">
+    <li><a href="#features">פיצ'רים</a></li>
+    <li><a href="#progress">התקדמות</a></li>
+    <li><a href="#pricing">מחירים</a></li>
+  </ul>
+  <button class="btn-primary">התחל בחינם</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div>
+    <div class="hero-badge">✨ מבוסס בינה מלאכותית</div>
+    <h1>עקוב אחרי התזונה שלך<br /><span>בשנייה אחת</span></h1>
+    <p>צלם את הארוחה, קבל ניתוח קלוריות מלא, ועקוב אחרי המאקרו שלך — בלי להזין כלום ידנית.</p>
+    <div class="hero-actions">
+      <button class="btn-primary" style="font-size:16px;padding:14px 32px;">⬇️ הורד עכשיו</button>
+      <button class="btn-outline">צפה בהדגמה</button>
+    </div>
+  </div>
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="phone-header">🍎 קלורי AI</div>
+      <div class="phone-body">
+        <div class="scan-area">
+          <span class="scan-food-emoji">🥗</span>
+          <div class="scan-line"></div>
+          <div class="annotation a1">חסה</div>
+          <div class="annotation a2">עגבניות שרי</div>
+        </div>
+        <div class="calories-card">
+          <span class="cal-icon">🔥</span>
+          <div>
+            <div class="cal-label">קלוריות</div>
+            <div class="cal-value">330</div>
+          </div>
+        </div>
+        <div class="macros-row">
+          <div class="macro-chip">
+            <span class="mc-icon">🥩</span>
+            <span class="mc-label">חלבון</span>
+            <span class="mc-val" style="color:#f472b6">8g</span>
+          </div>
+          <div class="macro-chip">
+            <span class="mc-icon">🌾</span>
+            <span class="mc-label">פחמימות</span>
+            <span class="mc-val" style="color:var(--orange)">20g</span>
+          </div>
+          <div class="macro-chip">
+            <span class="mc-icon">💧</span>
+            <span class="mc-label">שומן</span>
+            <span class="mc-val" style="color:#60a5fa">18g</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS BAR -->
+<div class="stats-bar fade-in">
+  <div class="stat-item">
+    <span class="stat-num" style="color:var(--green)" data-target="2">0M+</span>
+    <span class="stat-label">משתמשים פעילים</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num" style="color:var(--orange)" data-target="10">0M+</span>
+    <span class="stat-label">ארוחות שנוטרו</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num" style="color:var(--primary)">4.9★</span>
+    <span class="stat-label">דירוג App Store</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num" data-target="95">0%</span>
+    <span class="stat-label">דיוק זיהוי</span>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="fade-in">
+    <div class="section-tag">פיצ'רים</div>
+    <div class="section-title">כל מה שצריך לתזונה חכמה</div>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card fade-in">
+      <div class="feature-icon fi-green">📸</div>
+      <h3>סריקת אוכל חכמה</h3>
+      <p>צלם כל ארוחה וה-AI יזהה את המרכיבים, יחשב קלוריות ומאקרו תוך שנייה — בלי להקליד כלום.</p>
+    </div>
+    <div class="feature-card fade-in" style="transition-delay:.1s">
+      <div class="feature-icon fi-indigo">📊</div>
+      <h3>מעקב מאקרו מלא</h3>
+      <p>חלבון, פחמימות, שומן, סיבים תזונתיים — הכל מוצג בצורה ברורה עם גרפים יומיים ושבועיים.</p>
+    </div>
+    <div class="feature-card fade-in" style="transition-delay:.2s">
+      <div class="feature-icon fi-orange">🏆</div>
+      <h3>גיימיפיקציה ורצף</h3>
+      <p>שמור על רצף יומי, השג תגים, והתחרה עם חברים — כי עקביות היא המפתח להצלחה.</p>
+    </div>
+  </div>
+</section>
+
+<!-- STREAK SECTION -->
+<section class="streak-section" id="progress">
+  <div class="fade-in">
+    <div class="section-tag">התקדמות</div>
+    <div class="section-title">תראה את השינוי לאורך זמן</div>
+    <p style="color:var(--muted);font-size:16px;max-width:400px;margin-bottom:28px;">גרפי משקל, קלוריות יומיות ורצף שמירה — כל הנתונים שלך במקום אחד.</p>
+    <button class="btn-primary" style="font-size:15px;padding:12px 28px;">התחל לעקוב היום</button>
+  </div>
+  <div class="streak-visual fade-in" style="transition-delay:.15s">
+    <div class="streak-top">
+      <span class="streak-fire">🔥</span>
+      <div>
+        <div class="streak-num">21</div>
+        <div class="streak-label">יום רצף</div>
+      </div>
+    </div>
+    <div class="days-row">
+      <div class="day-circle done">א</div>
+      <div class="day-circle done">ב</div>
+      <div class="day-circle">ג</div>
+      <div class="day-circle">ד</div>
+      <div class="day-circle">ה</div>
+      <div class="day-circle">ו</div>
+      <div class="day-circle">ש</div>
+    </div>
+    <div class="chart-mini">
+      <div class="chart-title">התקדמות משקל — 6 חודשים</div>
+      <svg class="sparkline" viewBox="0 0 260 60" fill="none">
+        <defs>
+          <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#22c55e" stop-opacity="0.3"/>
+            <stop offset="100%" stop-color="#22c55e" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <path d="M0 50 L40 42 L80 36 L120 38 L160 28 L200 22 L260 18"
+              stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M0 50 L40 42 L80 36 L120 38 L160 28 L200 22 L260 18 L260 60 L0 60 Z"
+              fill="url(#g)"/>
+        <circle cx="200" cy="22" r="5" fill="#22c55e"/>
+        <rect x="148" y="4" width="92" height="28" rx="8" fill="#1f2937" stroke="#374151"/>
+        <text x="194" y="14" fill="#f9fafb" font-size="8" font-family="Assistant" text-anchor="middle">72.3 ק"ג</text>
+        <text x="194" y="24" fill="#9ca3af" font-size="7" font-family="Assistant" text-anchor="middle">ינואר 2026</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BANNER -->
+<div style="padding: 0 40px; margin-bottom: 60px; max-width:1100px; margin-left:auto; margin-right:auto;">
+  <div class="cta-banner fade-in">
+    <h2>מוכן להפוך את התזונה שלך לפשוטה?</h2>
+    <button class="btn-white">🚀 התחל בחינם — ללא כרטיס אשראי</button>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="logo" style="font-size:18px;">🔥 קלורי AI</div>
+  <span>© 2026 קלורי AI. כל הזכויות שמורות.</span>
+  <div style="display:flex;gap:20px;">
+    <a href="#">פרטיות</a>
+    <a href="#">תנאים</a>
+    <a href="#">צור קשר</a>
+  </div>
+</footer>
+
+<script>
+  // Scroll fade-in
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+  // Number counters
+  function animateCount(el, end, suffix) {
+    let start = 0, frames = 60;
+    const step = end / frames;
+    const tick = () => {
+      start = Math.min(start + step, end);
+      el.textContent = Math.floor(start) + suffix;
+      if (start < end) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      document.querySelectorAll('[data-target]').forEach(el => {
+        const target = parseFloat(el.dataset.target);
+        const suffix = el.textContent.replace(/[\d.]/g, '');
+        animateCount(el, target, suffix);
+      });
+    }, 700);
+  });
+</script>
+</body>
+</html>
