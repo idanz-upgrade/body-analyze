@@ -262,7 +262,7 @@
     @media(max-width:640px){
       nav{padding:16px 20px}.nav-links{display:none}
       .hero{padding:52px 20px 36px}
-      .card-header,.card-body{padding:18px 16px}
+      .card-header,.card-body{padding:16px 14px}
       .inputs-3{grid-template-columns:repeat(3,1fr);gap:8px}
       .inputs-3 .ninput{font-size:18px;padding:8px 2px}
       .inputs-3 .sbtn{width:30px;height:30px;font-size:16px}
@@ -271,11 +271,16 @@
       .photo-grid{grid-template-columns:1fr}
       .results-2col{grid-template-columns:1fr 1fr;gap:8px}
       .metrics-4,.macros-3{grid-template-columns:repeat(2,1fr)}
-      .result-card{padding:14px 12px}
-      .rnum{font-size:36px!important}
-      .runit{font-size:14px!important}
-      .cals-num{font-size:40px}
-      .met-val{font-size:16px}
+      .result-card{padding:12px 10px;min-width:0;overflow:hidden}
+      .rnum{font-size:28px!important;line-height:1.1}
+      .runit{font-size:12px!important}
+      .cals-num{font-size:34px}
+      .met-val{font-size:15px}
+      .met-chip{padding:10px 6px}
+      .mac-card{padding:10px;gap:6px}
+      .mac-val{font-size:15px!important}
+      .rlabel{font-size:10px}
+      .cat-badge{font-size:10px;padding:3px 8px}
       .form-row{flex-direction:column}
       footer{flex-direction:column;gap:10px;text-align:center;padding:20px}
     }
@@ -284,6 +289,7 @@
       .inputs-3 .irow{justify-content:center}
       .inputs-3 .ninput{max-width:100px}
       .results-2col{grid-template-columns:1fr}
+      .rnum{font-size:24px!important}
     }
   </style>
 </head>
