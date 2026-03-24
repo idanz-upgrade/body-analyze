@@ -122,25 +122,23 @@
     .tinfo-chip.warn span{color:var(--orange)}
     .tinfo-chip.ok span{color:var(--green)}
 
-    /* PHOTO */
-    .photo-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:0}
-    .upload-zone{background:var(--card2);border:2px dashed var(--border);border-radius:16px;
-      min-height:180px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    /* MULTI PHOTO */
+    .multi-photo-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:0}
+    .mini-upload-zone{background:var(--card2);border:2px dashed var(--border);border-radius:14px;
+      min-height:130px;display:flex;flex-direction:column;align-items:center;justify-content:center;
       cursor:pointer;transition:border-color .2s,background .2s;position:relative;overflow:hidden;
-      text-align:center;padding:20px}
-    .upload-zone:hover{border-color:var(--primary);background:rgba(99,102,241,.04)}
-    .upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-    .upload-icon{font-size:36px;margin-bottom:8px}
-    .upload-title{font-size:14px;font-weight:700;margin-bottom:4px}
-    .upload-sub{font-size:12px;color:var(--muted);line-height:1.5}
-    #photoPreview{width:100%;height:180px;object-fit:cover;border-radius:12px;display:none}
-    .remove-photo{position:absolute;top:8px;left:8px;width:28px;height:28px;
-      background:rgba(0,0,0,.75);border:none;border-radius:50%;color:#fff;font-size:12px;
-      cursor:pointer;display:none;align-items:center;justify-content:center;z-index:2}
-    .photo-has-img .upload-icon,.photo-has-img .upload-title,.photo-has-img .upload-sub{display:none}
-    .photo-has-img #photoPreview{display:block}
-    .photo-has-img .remove-photo{display:flex}
-    .photo-has-img input{display:none}
+      text-align:center;padding:12px}
+    .mini-upload-zone:hover{border-color:var(--primary);background:rgba(99,102,241,.06)}
+    .mini-upload-label{font-size:11px;font-weight:700;margin-top:4px;color:var(--text)}
+    .mini-upload-content{display:flex;flex-direction:column;align-items:center;pointer-events:none}
+    .mini-preview{width:100%;height:130px;object-fit:cover;border-radius:10px;display:none;position:absolute;inset:0}
+    .mini-upload-zone.has-img .mini-upload-content{display:none}
+    .mini-upload-zone.has-img .mini-preview{display:block}
+    .mini-upload-zone.has-img{border-color:var(--primary)}
+    .remove-photo-mini{position:absolute;top:6px;left:6px;width:22px;height:22px;
+      background:rgba(0,0,0,.8);border:none;border-radius:50%;color:#fff;font-size:10px;
+      cursor:pointer;display:none;align-items:center;justify-content:center;z-index:3}
+    .mini-upload-zone.has-img .remove-photo-mini{display:flex}
 
     /* AI ANALYSIS PANEL */
     .ai-panel{background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:14px 16px}
@@ -421,25 +419,28 @@
       <hr class="divider"/>
 
       <!-- PHOTO + AI ANALYSIS -->
-      <span class="field-label">📸 תמונה — ניתוח AI אמיתי</span>
-      <div class="photo-grid">
+      <span class="field-label">📸 תמונות — ניתוח AI אמיתי</span>
+      <div style="font-size:11px;color:var(--muted);text-align:right;margin:-6px 0 10px">
+        ככל שתוסיף יותר זוויות — הניתוח יהיה מדויק יותר. לפחות תמונה אחת נדרשת.
+      </div>
 
-        <div style="position:relative">
-          <div class="upload-zone" id="uploadZone">
-            <input type="file" id="photoInput" accept="image/*" onchange="onPhoto(event)"/>
-            <div class="upload-icon">📷</div>
-            <div class="upload-title">העלה תמונה גוף מלא</div>
-            <div class="upload-sub">Claude Vision ינתח את הגוף שלך ויעריך אחוזי שומן בצורה מדויקת</div>
-            <img id="photoPreview"/>
-            <button class="remove-photo" onclick="removePhoto(event)">✕</button>
+      <!-- 1 upload slot — front only -->
+      <div style="max-width:180px;margin:0 auto">
+        <div class="mini-upload-zone" id="zone0" onclick="triggerUpload(0)">
+          <input type="file" id="photoInput0" accept="image/*" onchange="onPhotoSlot(event,0)" style="display:none"/>
+          <img class="mini-preview" id="preview0"/>
+          <div class="mini-upload-content">
+            <div style="font-size:26px">📷</div>
+            <div class="mini-upload-label" style="font-size:13px">העלה תמונת פרונט</div>
           </div>
+          <button class="remove-photo-mini" onclick="removeSlot(event,0)">✕</button>
         </div>
+      </div>
 
-        <!-- AI Result panel -->
-        <div class="ai-result-panel" id="aiResultPanel">
-          <div class="ai-idle-icon">🤖</div>
-          <div class="ai-idle-text">העלה תמונה כדי שהבינה המלאכותית<br/>תנתח את הרכב גוף שלך</div>
-        </div>
+      <!-- AI Result panel (full width) -->
+      <div class="ai-result-panel" id="aiResultPanel" style="margin-top:12px">
+        <div class="ai-idle-icon">🤖</div>
+        <div class="ai-idle-text">העלה לפחות תמונה אחת<br/>לניתוח AI מדויק</div>
       </div>
 
       <!-- OPTIONAL MEASUREMENTS -->
@@ -562,7 +563,57 @@
       <div class="step-num" style="background:rgba(249,115,22,.2)">3</div>
       <div><h2>תוכנית אישית</h2><p>המלצות מותאמות למטרה ולציר הזמן שלך</p></div>
     </div>
-    <div class="card-body"><div class="plan-list" id="planList"></div></div>
+    <div class="card-body">
+
+      <!-- Recommendations -->
+      <div class="plan-list" id="planList"></div>
+
+      <!-- High/Low day cycling -->
+      <div style="background:rgba(99,102,241,.07);border:1px solid rgba(99,102,241,.2);border-radius:14px;padding:16px;margin-top:14px;text-align:right;direction:rtl">
+        <div style="font-weight:700;font-size:14px;color:#a5b4fc;margin-bottom:10px">🔄 חלוקה לימים גבוהים ונמוכים</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:12px">
+          חלוקה לימי קלוריות גבוהות ונמוכות היא הדרך הכי חכמה להתמיד לאורך זמן — מונעת שעמום, שומרת על מטבוליזם פעיל ומאפשרת גמישות חברתית.
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div style="background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);border-radius:10px;padding:12px;text-align:center">
+            <div style="font-size:10px;color:var(--green);font-weight:700;letter-spacing:.5px;margin-bottom:4px">ימי אימון (4×/שבוע)</div>
+            <div style="font-size:22px;font-weight:800;color:var(--green);font-family:'Syne',sans-serif" id="highDayCals">—</div>
+            <div style="font-size:11px;color:var(--muted)">קלוריות</div>
+          </div>
+          <div style="background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.25);border-radius:10px;padding:12px;text-align:center">
+            <div style="font-size:10px;color:#60a5fa;font-weight:700;letter-spacing:.5px;margin-bottom:4px">ימי מנוחה (3×/שבוע)</div>
+            <div style="font-size:22px;font-weight:800;color:#60a5fa;font-family:'Syne',sans-serif" id="lowDayCals">—</div>
+            <div style="font-size:11px;color:var(--muted)">קלוריות</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sample Menu -->
+      <div style="background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:16px;margin-top:14px;text-align:right;direction:rtl">
+        <div style="font-weight:700;font-size:14px;color:var(--text);margin-bottom:12px">🍽️ תפריט יומי לדוגמה</div>
+        <div id="sampleMenu" style="display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+
+      <!-- Weigh-in reminder -->
+      <div style="background:rgba(251,146,60,.07);border:1px solid rgba(251,146,60,.2);border-radius:14px;padding:14px 16px;margin-top:14px;display:flex;gap:12px;align-items:flex-start;direction:rtl">
+        <span style="font-size:20px;flex-shrink:0">⚖️</span>
+        <div style="font-size:13px;color:var(--text);line-height:1.7">
+          <strong>עקוב אחרי השקילות שלך</strong> — שקול את עצמך <strong>כל בוקר</strong> לפני אכילה, אחרי שירותים. רשום את הממוצע השבועי (לא מדידות יומיות) כדי לוודא שאתה בכיוון הנכון.
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <div id="planSummaryBox" style="background:linear-gradient(135deg,rgba(30,27,75,.8),rgba(49,46,129,.5));border:1px solid rgba(99,102,241,.3);border-radius:16px;padding:20px;margin-top:14px;direction:rtl;text-align:right">
+        <div style="font-weight:700;font-size:15px;color:#c7d2fe;margin-bottom:14px">📋 סיכום התוכנית שלך</div>
+        <div id="planSummaryContent" style="font-size:13px;line-height:2;color:var(--text)"></div>
+      </div>
+
+      <!-- Download button -->
+      <button onclick="downloadPlan()" style="width:100%;margin-top:14px;background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;border:none;border-radius:14px;padding:14px;font-size:15px;font-weight:700;font-family:'Assistant',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
+        ⬇️ הורד את התוכנית שלך
+      </button>
+
+    </div>
   </div>
 </div>
 
@@ -598,7 +649,7 @@ document.querySelectorAll('.fi').forEach(el=>obs.observe(el));
 /* ── state ── */
 let gender='male', actFactor=1.375, goalTab='weight', selectedBfGoal=null, optOpen=false;
 let photoLoaded=false, photoAiBf=null, photoAiConfidence='low', photoAiCategory=''; // AI analysis results
-const SERVER='http://localhost:4568';
+const SERVER='';
 
 /* ── BF goal data ── */
 const BF_GOALS={
@@ -724,48 +775,72 @@ function onWeeksChange(){
   }
 }
 
-/* ── PHOTO ── */
-function onPhoto(e){
+/* ── MULTI PHOTO ── */
+const slotData=[null,null,null]; // {data, mediaType} per slot
+
+function triggerUpload(idx){
+  if($('zone'+idx).classList.contains('has-img')) return;
+  $('photoInput'+idx).click();
+}
+
+function onPhotoSlot(e,idx){
   const file=e.target.files[0]; if(!file) return;
   const reader=new FileReader();
   reader.onload=ev=>{
-    // Show preview immediately
-    $('photoPreview').src=ev.target.result;
-    $('uploadZone').classList.add('photo-has-img');
-    photoLoaded=true;
-    showAiLoading();
-    // Resize before sending to API (max 1200px, max ~2MB)
-    resizeAndSend(ev.target.result);
+    $('preview'+idx).src=ev.target.result;
+    $('zone'+idx).classList.add('has-img');
+    resizeSlot(ev.target.result, idx);
   };
   reader.readAsDataURL(file);
 }
 
-function resizeAndSend(dataUrl){
+function resizeSlot(dataUrl, idx){
   const img=new Image();
   img.onload=()=>{
     const MAX=1200;
-    let {width:w, height:h}=img;
-    if(w>MAX||h>MAX){
-      const ratio=Math.min(MAX/w,MAX/h);
-      w=Math.round(w*ratio); h=Math.round(h*ratio);
-    }
-    const canvas=document.createElement('canvas');
-    canvas.width=w; canvas.height=h;
-    canvas.getContext('2d').drawImage(img,0,0,w,h);
-    // Use JPEG with 0.85 quality for size efficiency
-    const resizedUrl=canvas.toDataURL('image/jpeg',0.85);
-    const [header, b64]=resizedUrl.split(',');
-    runAiAnalysis(b64, 'image/jpeg');
+    let {width:w,height:h}=img;
+    if(w>MAX||h>MAX){const r=Math.min(MAX/w,MAX/h);w=Math.round(w*r);h=Math.round(h*r);}
+    const c=document.createElement('canvas');
+    c.width=w;c.height=h;
+    c.getContext('2d').drawImage(img,0,0,w,h);
+    const resized=c.toDataURL('image/jpeg',0.85);
+    slotData[idx]={data:resized.split(',')[1],mediaType:'image/jpeg'};
+    photoLoaded=true;
+    const loaded=slotData.filter(Boolean);
+    triggerMultiAnalysis();
+  };
+  img.onerror=()=>{
+    slotData[idx]=null;
+    $('preview'+idx).src='';
+    $('zone'+idx).classList.remove('has-img');
+    $('photoInput'+idx).value='';
+    const panel=$('aiResultPanel');
+    panel.className='ai-result-panel';
+    panel.innerHTML=`<div style="text-align:center;padding:20px">
+      <div style="font-size:2rem;margin-bottom:8px">⚠️</div>
+      <div style="color:#f97316;font-weight:700;margin-bottom:6px">פורמט לא נתמך</div>
+      <div style="color:var(--muted);font-size:13px">קבצי HEIC (iPhone) לא נתמכים ישירות.<br/>שמור את התמונה כ-<strong>JPG</strong> ונסה שוב.</div>
+    </div>`;
   };
   img.src=dataUrl;
 }
 
-function removePhoto(e){
+function removeSlot(e,idx){
   e.stopPropagation();
-  $('photoInput').value=''; $('photoPreview').src='';
-  $('uploadZone').classList.remove('photo-has-img');
-  photoLoaded=false; photoAiBf=null; photoAiConfidence='low'; photoAiCategory='';
-  showAiIdle();
+  slotData[idx]=null;
+  $('preview'+idx).src='';
+  $('zone'+idx).classList.remove('has-img');
+  $('photoInput'+idx).value='';
+  const loaded=slotData.filter(Boolean);
+  if(!loaded.length){photoLoaded=false;photoAiBf=null;showAiIdle();}
+  else triggerMultiAnalysis();
+}
+
+function triggerMultiAnalysis(){
+  const loaded=slotData.filter(Boolean);
+  if(!loaded.length) return;
+  showAiLoading();
+  runAiAnalysis(loaded);
 }
 
 function showAiIdle(){
@@ -796,21 +871,35 @@ function showAiResult(result){
   const panel=$('aiResultPanel');
   panel.className='ai-result-panel done';
   panel.innerHTML=`
-    <div class="ai-result-label">ניתוח תמונה — Claude Vision AI</div>
+    <div class="ai-result-label">ניתוח תמונה — Gemini Vision AI</div>
     <div style="display:flex;align-items:baseline;gap:4px">
       <div class="ai-result-bf" style="color:${cat.c}">${bf.toFixed(1)}</div>
       <div style="font-size:19px;font-weight:700;color:var(--muted)">%</div>
+      ${result.range?`<div style="font-size:13px;color:var(--muted);margin-right:4px">(טווח: ${result.range})</div>`:''}
     </div>
     <span class="ai-result-cat" style="background:${cat.c}22;color:${cat.c}">${cat.l}</span>
     ${result.analysis?`<div class="ai-analysis-text">${result.analysis}</div>`:''}
-    ${(result.bmiBaseline||result.visualAdjustment!==undefined)?`
-    <div style="display:flex;gap:6px;margin-top:8px;width:100%;flex-wrap:wrap">
-      ${result.bmiBaseline?`<span class="ai-ind-chip">📊 BMI baseline: ${result.bmiBaseline}%</span>`:''}
-      ${result.visualAdjustment!==undefined?`<span class="ai-ind-chip" style="color:${result.visualAdjustment<0?'#4ade80':'#fb923c'}">${result.visualAdjustment>0?'+':''}${result.visualAdjustment}% ויזואלי</span>`:''}
+    ${result.scores?`
+    <div style="background:rgba(99,102,241,.07);border:1px solid rgba(99,102,241,.2);border-radius:10px;padding:10px 12px;margin-top:8px;font-size:12px;line-height:2;text-align:right;direction:rtl">
+      <div style="font-weight:700;margin-bottom:4px;font-size:11px;letter-spacing:.5px;color:#a5b4fc">📊 ניקוד</div>
+      <div style="display:grid;grid-template-columns:1fr auto;gap:0 12px;color:var(--text)">
+        <span>בטן עליונה</span><span style="color:#c4b5fd;font-weight:700">${result.scores.upperAbs}/4</span>
+        <span>בטן תחתונה ⭐</span><span style="color:#c4b5fd;font-weight:700">${result.scores.lowerAbs}/4</span>
+        <span>הפרדת חזה</span><span style="color:#c4b5fd;font-weight:700">${result.scores.chest}/3</span>
+        <span>כתפיים וזרועות</span><span style="color:#c4b5fd;font-weight:700">${result.scores.shouldersArms}/3</span>
+        <span>יובש / גרעין</span><span style="color:#c4b5fd;font-weight:700">${result.scores.conditioning}/3</span>
+        <span style="font-weight:700;border-top:1px solid rgba(99,102,241,.2);padding-top:4px">סה"כ</span>
+        <span style="font-weight:700;color:#818cf8;border-top:1px solid rgba(99,102,241,.2);padding-top:4px">${result.scores.total}/17</span>
+      </div>
+    </div>`:''}
+    ${result.whyNotLower?`
+    <div style="background:rgba(251,146,60,.08);border:1px solid rgba(251,146,60,.25);border-radius:10px;padding:10px 12px;margin-top:8px;font-size:12px;color:#fdba74;line-height:1.6;text-align:right">
+      <div style="font-weight:700;margin-bottom:4px;font-size:11px;letter-spacing:.5px;color:#f97316">⚠️ מדוע לא פחות?</div>
+      ${result.whyNotLower}
     </div>`:''}
     ${indicators.length?`<div class="ai-indicators">${indicators.map(ind=>`<span class="ai-ind-chip">${ind}</span>`).join('')}</div>`:''}
     <div class="ai-conf-row">
-      <div style="font-size:11px;color:var(--muted)">🤖 Claude Vision + נתונים</div>
+      <div style="font-size:11px;color:var(--muted)">🔮 Gemini Vision — ניתוח ויזואלי בלבד</div>
       <div class="ai-conf-badge" style="color:${confColors[conf]||'#facc15'}">
         ●&nbsp;ביטחון ${confLabels[conf]||conf}
       </div>
@@ -826,19 +915,11 @@ function showAiError(msg){
     <div style="font-size:10px;color:var(--muted);margin-top:8px">הניתוח יבוסס על נתונים בלבד</div>`;
 }
 
-async function runAiAnalysis(imageBase64, mediaType){
+async function runAiAnalysis(images){
   showAiLoading();
   photoAiBf=null;
 
-  const h=+$('height').value||180, w=+$('weight').value||85, age=+$('age').value||28;
-  const hasMeas=optOpen&&+$('neck').value&&+$('waist').value;
-
-  const body={
-    imageBase64, mediaType,
-    height:h, weight:w, age, gender,
-    ...(hasMeas?{neck:+$('neck').value, waist:+$('waist').value}:{}),
-    ...(hasMeas && gender==='female' && +$('hip').value ? {hip:+$('hip').value}:{}),
-  };
+  const body={ images, gender };
 
   try{
     const res=await fetch(`${SERVER}/analyze`,{
@@ -968,7 +1049,7 @@ function analyze(){
   /* ── sources subtitle ── */
   const srcs=[];
   srcs.push('BMI');
-  if(photoAiBf!==null) srcs.push('Claude Vision AI');
+  if(photoAiBf!==null) srcs.push('Gemini Vision AI');
   if(hasMeas) srcs.push('Navy');
   $('resultSubtitle').textContent='מצולב: '+srcs.join(' + ');
 
@@ -1016,17 +1097,569 @@ function analyze(){
       :'💪 lean bulk: אכול עודף קטן ואמן כוח כבד — 70-80% מהעלייה תהיה שריר.')
     :dailyChange>700
     ?`⚠️ גירעון של ${dailyChange} קל/יום גבוה — שקול להאריך ל-${Math.round(absDelta*7700/500/7)} שבועות לקצב בריא יותר.`
-    :srcs.length===3?'✅ ניתוח מלא ומדויק: BMI + Claude Vision AI + מדידות Navy מצולבים בשקלול משוקלל.'
-    :srcs.length===2 && photoAiBf!==null?'✅ ניתוח מדויק: BMI + Claude Vision AI מצולבים. הוסף מדידות לדיוק מרבי.'
+    :srcs.length===3?'✅ ניתוח מלא ומדויק: BMI + Gemini Vision AI + מדידות Navy מצולבים בשקלול משוקלל.'
+    :srcs.length===2 && photoAiBf!==null?'✅ ניתוח מדויק: BMI + Gemini Vision AI מצולבים. הוסף מדידות לדיוק מרבי.'
     :srcs.length===2?'ℹ️ ניתוח טוב. הוסף תמונה לניתוח AI אמיתי לדיוק מרבי.'
     :'ℹ️ ניתוח בסיסי. העלה תמונה — Claude Vision ינתח את גופך בצורה מדויקת.';
 
   drawChart(w, isGain ? w+absDelta : w-absDelta, weeks, isGain);
   buildPlan(bf, isMale, cat, isMaintain, isGain, goalTab, selectedBfGoal, weeks, dailyChange);
+  buildCycling(recCals, isGain, isMaintain);
+  const cycleDiff = isMaintain ? 0 : 150;
+  buildMenu(recCals, protein, carbs, fats, isMale, cycleDiff);
+  buildSummary(w, bf, bmi, leanMass, tdee, recCals, protein, carbs, fats, dailyChange, weeks, isGain, isMaintain, goalLabel, cat);
 
   $('resultsCard').classList.remove('hidden');
   $('planSection').style.display='block';
   setTimeout(()=>$('results').scrollIntoView({behavior:'smooth'}),200);
+}
+
+/* ── HIGH / LOW CYCLING ── */
+function buildCycling(recCals, isGain, isMaintain){
+  if(isMaintain){
+    $('highDayCals').textContent = recCals.toLocaleString();
+    $('lowDayCals').textContent  = recCals.toLocaleString();
+    return;
+  }
+  const diff = isGain ? 150 : -150;
+  $('highDayCals').textContent = Math.round(recCals + diff).toLocaleString();
+  $('lowDayCals').textContent  = Math.round(recCals - diff).toLocaleString();
+}
+
+/* ── FOOD DATABASE (from user's nutritional table) ── */
+// Proteins: cal/100g, protein g/100g, fat g/100g, carbs g/100g
+const PROTEINS = [
+  {n:'חזה עוף',   cal:165, p:31.1, f:3.6, c:2.1},
+  {n:'פרגית',     cal:190, p:28.1, f:8.7, c:0},
+  {n:'סלמון',     cal:206, p:22.1, f:12.3,c:0},
+  {n:'אמנון',     cal:140, p:27.1, f:3.6, c:0},
+  {n:'שייטל',     cal:165, p:29.9, f:5.1, c:0},
+  {n:'סינטה',     cal:211, p:29.1, f:9.7, c:0},
+  {n:'ביצה',      cal:155, p:13.0, f:10.6,c:1.1, unit:'ביצה', gPerUnit:60},
+  {n:'קוטג׳ 5%', cal:95,  p:11.1, f:3.6, c:3.2},
+  {n:'טונה במים', cal:104, p:24.8, f:0.6, c:0},
+  {n:'אבקת חלבון',cal:375, p:72.3, f:6.2, c:7.1},
+];
+// Carbs: cal/100g, carbs g/100g, protein g/100g
+const CARBS_DB = [
+  {n:'אורז',           cal:150, c:35.0, p:3.6, unit:null},
+  {n:'פסטה',           cal:170, c:34.0, p:3.6, unit:null},
+  {n:'קינואה',         cal:120, c:21.3, p:3.4, unit:null},
+  {n:'בטטה',           cal:92,  c:21.3, p:1.6, unit:null},
+  {n:'תפוח אדמה',      cal:92,  c:21.3, p:2.0, unit:null},
+  {n:'אורז מלא',       cal:130, c:27.0, p:2.7, unit:null},
+  {n:'לחם מלא',        cal:250, c:45.0, p:9.0, unit:'פרוסה', gPerUnit:32},
+  {n:'פיתה כוסמין',    cal:265, c:52.0, p:9.6, unit:'פיתה', gPerUnit:95},
+  {n:'פתיתים',         cal:154, c:29.3, p:5.4, unit:null},
+  {n:'בורגול',         cal:84,  c:18.6, p:3.2, unit:null},
+];
+
+/* ── SAMPLE MENU ── */
+// Tier rules for fat serving + free calories based on total daily calories:
+// <1500  → fat=50,  free=50   (minimums)
+// 1500–2000 → fat=100, free=50
+// 2000–2200 → fat=100, free=100
+// 2200–2400 → fat=150, free=100
+// 2400–2600 → fat=200, free=150
+// 2600–2800 → fat=250, free=200
+// 2800+    → fat=300, free=250
+function getFlexibles(dayCals) {
+  if (dayCals < 1500) return {fatServingCals:50,  freeCals:50};
+  if (dayCals < 2000) return {fatServingCals:100, freeCals:50};
+  if (dayCals < 2200) return {fatServingCals:100, freeCals:100};
+  if (dayCals < 2400) return {fatServingCals:150, freeCals:100};
+  if (dayCals < 2600) return {fatServingCals:200, freeCals:150};
+  if (dayCals < 2800) return {fatServingCals:250, freeCals:200};
+  return                     {fatServingCals:300, freeCals:250};
+}
+
+// 1 מנת ירק = 150g | 20 קל/100g → 30 קל | 5g פחמ | 2g חלבון
+// חלוקה: [בוקר, צהריים, ערב]
+const VEG_CAL = 30, VEG_CARB = 5, VEG_PROT = 2;
+function getVegetables(dayCals) {
+  let total;
+  if      (dayCals < 1400) total = 3;
+  else if (dayCals < 1800) total = 4;
+  else if (dayCals < 2200) total = 5;
+  else if (dayCals < 2600) total = 6;
+  else                     total = 7;
+
+  // Distribution [breakfast, lunch, dinner]
+  const dist = {
+    3: [1,1,1],
+    4: [1,2,1],
+    5: [1,2,2],
+    6: [2,2,2],
+    7: [2,3,2],
+  };
+  return { total, dist: dist[total] || [2,3,2] };
+}
+
+function buildMenu(baseCals, proteinDay, carbsDay, fatsDay, isMale, cycleDiff){
+  const FRUIT_CALS = 90; const FRUIT_CARBS = 22;
+  const highCals = Math.round(baseCals + cycleDiff);
+  const lowCals  = Math.round(baseCals - cycleDiff);
+  const days = [
+    {id:'high', label:`יום אימון (${highCals} קל)`, dayCals: highCals},
+    {id:'low',  label:`יום מנוחה (${lowCals} קל)`,  dayCals: lowCals},
+  ];
+
+  const renderDay = (dayTotalCals) => {
+    const {fatServingCals, freeCals} = getFlexibles(dayTotalCals);
+
+    // 1 tbsp raw tahini = 11g fat ≈ 100 cal → scale from that
+    const tahiniTbsp = fatServingCals / 100;
+
+    // Protein + carb sources per meal
+    const PS = {
+      b: PROTEINS.find(x=>x.n==='ביצה'),
+      l: PROTEINS.find(x=>x.n==='חזה עוף'),
+      d: PROTEINS.find(x=>x.n==='סלמון'),
+    };
+    const CS = {
+      b: CARBS_DB.find(x=>x.n==='לחם מלא'),
+      l: CARBS_DB.find(x=>x.n==='אורז'),
+      d: CARBS_DB.find(x=>x.n==='בטטה'),
+    };
+    const pPct = {b:.25, l:.40, d:.35};
+    const cPct = {b:.25, l:.45, d:.30};
+
+    // Extra protein: always shown when proteinDay >= 140g
+    // Contributes 20g protein + 120 cal → subtracted from meal budget
+    const showExtraProtein = proteinDay >= 140;
+    const EXTRA_PROT_G   = showExtraProtein ? 20  : 0;
+    const EXTRA_PROT_CAL = showExtraProtein ? 120 : 0;
+
+    // ── Vegetables ──
+    const veg = getVegetables(dayTotalCals);
+    const vegTotalCal  = veg.total * VEG_CAL;
+    const vegTotalCarb = veg.total * VEG_CARB;
+    const vegTotalProt = veg.total * VEG_PROT;
+
+    // ── Budget-first approach ──
+    // Subtract veg calories from meal budget (they're part of each meal)
+    const mealBudget = dayTotalCals - FRUIT_CALS - freeCals - EXTRA_PROT_CAL - vegTotalCal;
+
+    // Protein for meals (after veg protein + extra protein snack)
+    const mealProtein = proteinDay - EXTRA_PROT_G - vegTotalProt;
+
+    // Carbs for meals (after veg carbs + fruit carbs)
+    const mealCarbsTarget = Math.max(20, carbsDay - FRUIT_CARBS - vegTotalCarb - EXTRA_PROT_G*0);
+
+    // Step 1: Fix protein portions from mealProtein target
+    const pg = {
+      b: Math.round(mealProtein * pPct.b / PS.b.p * 100),
+      l: Math.round(mealProtein * pPct.l / PS.l.p * 100),
+      d: Math.round(mealProtein * pPct.d / PS.d.p * 100),
+    };
+
+    // Step 2: Calories used by protein sources
+    const proteinMealCals =
+      pg.b*PS.b.cal/100 + pg.l*PS.l.cal/100 + pg.d*PS.d.cal/100;
+
+    // Step 3: Remaining budget for carbs
+    const carbBudget = Math.max(0, mealBudget - proteinMealCals);
+
+    // Step 4: Distribute carb budget across meals
+    const cg = {
+      b: Math.max(0, Math.round(carbBudget * cPct.b / CS.b.cal * 100)),
+      l: Math.max(0, Math.round(carbBudget * cPct.l / CS.l.cal * 100)),
+      d: Math.max(0, Math.round(carbBudget * cPct.d / CS.d.cal * 100)),
+    };
+
+    const mCals = {
+      b: Math.round(pg.b*PS.b.cal/100 + cg.b*CS.b.cal/100 + veg.dist[0]*VEG_CAL),
+      l: Math.round(pg.l*PS.l.cal/100 + cg.l*CS.l.cal/100 + veg.dist[1]*VEG_CAL),
+      d: Math.round(pg.d*PS.d.cal/100 + cg.d*CS.d.cal/100 + veg.dist[2]*VEG_CAL),
+    };
+
+    // round to nearest 5g
+    const r5 = n => Math.round(n/5)*5;
+
+    // ── Build meal labels ──
+    const mealLabel = (key) => {
+      const ps=PS[key], cs=CS[key], p=r5(pg[key]), c=r5(cg[key]);
+      const mp = Math.round(mealProtein*pPct[key]);
+      const mc = Math.round(c * cs.c/100);
+      const pL = ps.unit ? `${Math.max(1,Math.round(p/ps.gPerUnit))} ${ps.unit} (${p}g) ${ps.n}` : `${p}g ${ps.n}`;
+      const cL = cs.unit ? `${Math.max(1,Math.round(c/cs.gPerUnit))} ${cs.unit} (${c}g) ${cs.n}` : `${c}g ${cs.n}`;
+      return {pL, cL, mp, mc};
+    };
+
+    const meals = [
+      {label:'☀️ ארוחת בוקר',   ...mealLabel('b'), cals:mCals.b, veg:veg.dist[0]},
+      {label:'🍽️ ארוחת צהריים', ...mealLabel('l'), cals:mCals.l, veg:veg.dist[1]},
+      {label:'🌙 ארוחת ערב',    ...mealLabel('d'), cals:mCals.d, veg:veg.dist[2]},
+    ];
+
+    const mealsHtml = meals.map(m=>`
+      <div style="border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+          <div style="font-size:11px;color:var(--muted)">~${m.cals} קל | ${m.mp}g חלבון | ${m.mc}g פחמ</div>
+          <div style="font-weight:700;font-size:14px">${m.label}</div>
+        </div>
+        <div style="font-size:13px;text-align:right;line-height:1.9">
+          🥩 ${m.pL}<br/>🌾 ${m.cL}<br/><span style="font-size:12px;color:var(--muted)">🥦 ${m.veg} מנת ירק${m.veg>1?'ות':''} — ירק לבחירה (~${m.veg*150}g)</span>
+        </div>
+      </div>`).join('') +
+      `<div style="font-size:11px;color:var(--muted);text-align:right;padding:4px 6px;display:flex;justify-content:space-between">
+        <span>🥦 מנת ירק = כוס (~150g) ירק לבחירה | סה"כ <strong>${veg.total} מנות</strong> ביום</span>
+        <span>⚠️ כל המשקלים — <strong>לאחר בישול</strong></span>
+       </div>`;
+
+    // showFruit always true unless extremely low carb
+    const showFruit = carbsDay > 30;
+
+    // ── Fat serving display — always shown, scaled from 1 tbsp tahini = 100 cal ──
+    const fmt = n => {
+      if (n <= 0.5) return '½';
+      if (Number.isInteger(Math.round(n*2)/2)) return (Math.round(n*2)/2).toString().replace('.5','½');
+      return n.toFixed(1);
+    };
+    const fatHtml = `<div style="font-size:12px;color:var(--muted);text-align:right;line-height:2.3">
+        · ${fmt(Math.max(0.5,tahiniTbsp))} כפות טחינה גולמית<br/>
+        · ${fmt(Math.max(0.5,tahiniTbsp*2))} כפות טחינה מדוללת<br/>
+        · ${fmt(Math.max(0.5,tahiniTbsp*2))} כפיות חמאת בוטנים<br/>
+        · ${r5(Math.max(30,Math.round(tahiniTbsp*60)))}g אבוקדו<br/>
+        · ${fmt(Math.max(0.5,tahiniTbsp))} כפות שמן זית<br/>
+        · ${r5(Math.max(30,Math.round(tahiniTbsp*75)))}g זיתים<br/>
+        · ${r5(Math.max(10,Math.round(tahiniTbsp*16)))}g קשיו
+      </div>`;
+
+    const fruitOpts = ['מנגו 150g','אבטיח 300g','ענבים 130g','תמרים 35g','בננה 100g','אוכמניות 160g','אגס 150g','תפוח 175g','תותים 280g','תפוז 190g','אפרסק 230g'];
+
+    return `
+      <div style="font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--muted);text-align:right;margin-bottom:10px">3 ארוחות עיקריות</div>
+      ${mealsHtml}
+      <div style="font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--muted);text-align:right;margin:14px 0 10px">בין הארוחות</div>
+
+      ${showFruit?`<div style="border:1px solid rgba(34,197,94,.3);border-radius:12px;padding:12px 14px;margin-bottom:8px;background:rgba(34,197,94,.05)">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <div style="font-size:11px;color:var(--muted)">${FRUIT_CALS} קל · פעם אחת ביום</div>
+          <div style="font-weight:700;font-size:14px;color:var(--green)">🍓 מנת פרי — בחר אחד</div>
+        </div>
+        <div style="font-size:12px;color:var(--muted);text-align:right;line-height:2.1">${fruitOpts.map(f=>`<span style="white-space:nowrap">${f}</span>`).join(' | ')}</div>
+      </div>`:''}
+
+      <div style="border:1px solid rgba(251,146,60,.3);border-radius:12px;padding:12px 14px;margin-bottom:8px;background:rgba(251,146,60,.05)">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+          <div style="font-size:11px;color:var(--muted)">~${fatServingCals} קל · פעם אחת ביום</div>
+          <div style="font-weight:700;font-size:14px;color:var(--orange)">🥑 מנת שומן — בחר אחד</div>
+        </div>
+        ${fatHtml}
+      </div>
+
+      <div style="border:1px solid rgba(99,102,241,.3);border-radius:12px;padding:12px 14px;margin-bottom:8px;background:rgba(99,102,241,.05)">
+        <div style="font-weight:700;font-size:14px;color:#a5b4fc;margin-bottom:6px;text-align:right">⚡ חטיפים מאושרים</div>
+        <div style="font-size:12px;color:var(--muted);text-align:right;line-height:2.3">
+          ☕ קפה שחור ללא סוכר — ללא הגבלה<br/>
+          🥤 משקאות זירו — ללא הגבלה
+          ${showExtraProtein?`<br/><span style="color:#c4b5fd">🏋️ אקסטרה חלבון — בחר אחד (20g חלבון | 120 קל):</span><br/>&nbsp;&nbsp;🍫 מעדן חלבון עד 120 קל<br/>&nbsp;&nbsp;🥚 2 ביצים + חלבון ביצה`:''}
+        </div>
+      </div>
+
+      <div style="border:1px solid rgba(244,114,182,.3);border-radius:12px;padding:12px 14px;background:rgba(244,114,182,.05)">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <div style="font-size:11px;color:var(--muted)">${freeCals} קל</div>
+          <div style="font-weight:700;font-size:14px;color:#f472b6">🎯 קלוריות חופשיות</div>
+        </div>
+        <div style="font-size:12px;color:var(--muted);text-align:right">אכול כל מה שעולה לך בראש — ב-${freeCals} קל</div>
+      </div>`;
+  };
+
+  // Build tabs
+  const tabBtns = days.map((d,i)=>`
+    <button onclick="switchMenuTab('${d.id}')" id="menuTab_${d.id}"
+      style="flex:1;padding:8px;border:1px solid ${i===0?'var(--primary)':'var(--border)'};
+      border-radius:8px;background:${i===0?'rgba(99,102,241,.15)':'transparent'};
+      color:${i===0?'var(--primary)':'var(--muted)'};font-size:13px;font-weight:600;
+      cursor:pointer;transition:all .2s">${d.label}</button>`).join('');
+
+  const tabPanels = days.map((d,i)=>`
+    <div id="menuPanel_${d.id}" style="display:${i===0?'block':'none'}">
+      ${renderDay(d.dayCals)}
+    </div>`).join('');
+
+  $('sampleMenu').innerHTML = `
+    <div style="display:flex;gap:8px;margin-bottom:16px">${tabBtns}</div>
+    ${tabPanels}`;
+}
+
+function switchMenuTab(id){
+  ['high','low'].forEach(t=>{
+    const btn = document.getElementById('menuTab_'+t);
+    const panel = document.getElementById('menuPanel_'+t);
+    const active = t===id;
+    if(btn){ btn.style.background=active?'rgba(99,102,241,.15)':'transparent'; btn.style.color=active?'var(--primary)':'var(--muted)'; btn.style.borderColor=active?'var(--primary)':'var(--border)'; }
+    if(panel) panel.style.display=active?'block':'none';
+  });
+}
+
+/* ── SUMMARY ── */
+let _planData = {};
+function buildSummary(w, bf, bmi, lean, tdee, cals, prot, carb, fat, deficit, weeks, isGain, isMaintain, goalLabel, cat){
+  _planData = {w,bf,bmi,lean,tdee,cals,prot,carb,fat,deficit,weeks,isGain,isMaintain,goalLabel,cat};
+  const lines = [
+    `🎯 מטרה: ${goalLabel}`,
+    `⚖️ משקל נוכחי: ${w} ק"ג | אחוזי שומן: ${bf}% (${cat.l}) | מסת שריר: ${lean} ק"ג`,
+    `🔥 TDEE: ${tdee.toLocaleString()} קל/יום | יעד: ${cals.toLocaleString()} קל/יום`,
+    `🥩 מאקרו יומי: ${prot}g חלבון · ${carb}g פחמימות · ${fat}g שומן`,
+    isMaintain ? '✅ שמור על ה-TDEE ואמן כוח 3–4× בשבוע' : `${isGain?'📈':'📉'} ${isGain?'עודף':'גירעון'} של ${deficit} קל/יום למשך ${weeks} שבועות`,
+    '⚖️ שקול כל בוקר — עקוב אחרי ממוצע שבועי',
+    '🏋️ אימוני כוח 3–4× בשבוע — חיוניים לשינוי הרכב גוף',
+    '💧 שתה 2.5–3 ליטר מים ביום',
+  ];
+  $('planSummaryContent').innerHTML = lines.map(l=>`<div style="padding:2px 0;border-bottom:1px solid rgba(255,255,255,.05)">${l}</div>`).join('');
+}
+
+/* ── DOWNLOAD ── */
+function downloadPlan(){
+  const d = _planData;
+  if(!d.w){ alert('נתח קודם'); return; }
+  const months=['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+  const now = new Date();
+  const dateStr = now.getDate()+' '+months[now.getMonth()]+' '+now.getFullYear();
+  // Training day always higher, rest day always lower
+  const _cd = d.isMaintain ? 0 : 150;
+  const highCals = Math.round(d.cals + _cd);
+  const lowCals  = Math.round(d.cals - _cd);
+
+  // Get the rendered meal plan HTML from current panels
+  const highPanel = document.getElementById('menuPanel_high');
+  const lowPanel  = document.getElementById('menuPanel_low');
+  const highHtml  = highPanel ? highPanel.innerHTML : '';
+  const lowHtml   = lowPanel  ? lowPanel.innerHTML  : '';
+
+  const html = `<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+<meta charset="UTF-8"/>
+<title>תוכנית אישית — WeightWise</title>
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Assistant',Arial,sans-serif;direction:rtl;background:#fff;color:#1a1a2e;font-size:13px;line-height:1.6}
+  .page{max-width:800px;margin:0 auto;padding:36px 32px}
+
+  /* Header */
+  .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;padding-bottom:18px;border-bottom:1px solid #e8e8f0}
+  .logo-wrap{display:flex;align-items:center;gap:10px}
+  .logo-icon{width:36px;height:36px;background:linear-gradient(135deg,#6366f1,#4f46e5);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:16px}
+  .logo-text{font-size:20px;font-weight:800;color:#1a1a2e}
+  .logo-text span{color:#6366f1}
+  .header-meta{text-align:left;font-size:11px;color:#888;line-height:1.8}
+
+  /* Section titles */
+  .section-title{font-size:11px;font-weight:800;color:#6366f1;text-transform:uppercase;letter-spacing:1.2px;margin:22px 0 12px;display:flex;align-items:center;gap:8px}
+  .section-title::after{content:'';flex:1;height:1px;background:#e8e8f0}
+
+  /* Stats grid */
+  .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:0}
+  .stat-card{background:#fafafe;border-radius:12px;padding:14px 10px;text-align:center;border:1px solid #ededf8}
+  .stat-val{font-size:22px;font-weight:800;color:#4f46e5;letter-spacing:-1px}
+  .stat-lbl{font-size:10px;color:#888;margin-top:3px;line-height:1.4}
+
+  /* Goal banner */
+  .goal-banner{background:linear-gradient(135deg,#f0f0ff,#e8e8ff);border-radius:12px;padding:14px 18px;border:1px solid #d4d4f7;margin-bottom:0;display:flex;justify-content:space-between;align-items:center}
+  .goal-main{font-weight:700;font-size:14px;color:#3730a3}
+  .goal-sub{font-size:11px;color:#6366f1;margin-top:3px}
+  .goal-badge{background:#6366f1;color:#fff;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;white-space:nowrap}
+
+  /* Macro bar */
+  .macro-row{display:flex;gap:8px;margin-bottom:0}
+  .macro-box{flex:1;border-radius:12px;padding:14px 10px;text-align:center;position:relative;overflow:hidden}
+  .macro-box::before{content:'';position:absolute;top:0;right:0;left:0;height:3px}
+  .macro-box.p{background:#fdf4ff;border:1px solid #e9d5ff}.macro-box.p::before{background:#a855f7}
+  .macro-box.c{background:#fff7ed;border:1px solid #fed7aa}.macro-box.c::before{background:#f97316}
+  .macro-box.f{background:#f0fdf4;border:1px solid #bbf7d0}.macro-box.f::before{background:#22c55e}
+  .macro-val{font-size:24px;font-weight:800;letter-spacing:-1px}
+  .macro-box.p .macro-val{color:#9333ea}
+  .macro-box.c .macro-val{color:#ea580c}
+  .macro-box.f .macro-val{color:#16a34a}
+  .macro-lbl{font-size:11px;color:#666;font-weight:600}
+  .macro-kcal{font-size:10px;color:#aaa;margin-top:1px}
+
+  /* Cal day cards */
+  .cal-row{display:flex;gap:8px;margin-bottom:0}
+  .cal-card{flex:1;border-radius:12px;padding:14px 18px}
+  .cal-card.high{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1px solid #86efac}
+  .cal-card.low{background:linear-gradient(135deg,#f8fafc,#f1f5f9);border:1px solid #cbd5e1}
+  .cal-card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+  .cal-label{font-size:11px;font-weight:700}
+  .cal-card.high .cal-label{color:#15803d}
+  .cal-card.low .cal-label{color:#475569}
+  .cal-num{font-size:28px;font-weight:800;letter-spacing:-1px}
+  .cal-card.high .cal-num{color:#15803d}
+  .cal-card.low .cal-num{color:#334155}
+  .cal-unit{font-size:11px;color:#888}
+  .tdee-note{font-size:10px;color:#999;margin-top:4px}
+
+  /* Day section */
+  .day-header{display:flex;align-items:center;gap:10px;margin:16px 0 10px}
+  .day-pill{border-radius:20px;padding:5px 16px;font-weight:700;font-size:12px;color:#fff}
+  .day-pill.train{background:linear-gradient(135deg,#6366f1,#4f46e5)}
+  .day-pill.rest{background:linear-gradient(135deg,#64748b,#475569)}
+  .day-cals-note{font-size:11px;color:#888}
+
+  /* Meal cards */
+  .meal{border:1px solid #f0f0f8;border-radius:12px;padding:12px 14px;margin-bottom:7px;background:#fafafe}
+  .meal-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+  .meal-name{font-weight:700;font-size:13px;color:#1a1a2e}
+  .meal-badge{font-size:10px;color:#6366f1;background:#f0f0ff;padding:2px 9px;border-radius:20px;font-weight:700}
+  .meal-line{font-size:12px;color:#444;padding:2px 0;display:flex;align-items:center;gap:5px}
+  .meal-line span{color:#888;font-size:11px}
+
+  /* Between meals section */
+  .between-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .bi{border-radius:10px;padding:11px 13px}
+  .bi.fruit{background:#f0fdf4;border:1px solid #86efac}
+  .bi.fat{background:#fffbeb;border:1px solid #fcd34d}
+  .bi.snack{background:#f5f3ff;border:1px solid #c4b5fd}
+  .bi.free{background:#fdf4ff;border:1px solid #f0abfc}
+  .bi-title{font-weight:700;font-size:12px;margin-bottom:5px}
+  .bi.fruit .bi-title{color:#15803d}
+  .bi.fat .bi-title{color:#92400e}
+  .bi.snack .bi-title{color:#4c1d95}
+  .bi.free .bi-title{color:#86198f}
+  .bi-content{font-size:11px;color:#555;line-height:1.9}
+
+  /* Tips */
+  .tips{background:#fafafe;border-radius:12px;padding:14px 18px;border:1px solid #ededf8}
+  .tip{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid #f0f0f8;font-size:12px;color:#333}
+  .tip:last-child{border-bottom:none;padding-bottom:0}
+
+  /* Footer */
+  .footer{margin-top:28px;padding-top:16px;border-top:1px solid #e8e8f0;display:flex;justify-content:space-between;align-items:center}
+  .footer-logo{font-weight:800;color:#6366f1;font-size:15px}
+  .footer-note{font-size:10px;color:#aaa}
+
+  /* Page break for print */
+  .page-break{page-break-before:always}
+
+  @media print{
+    body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .page{padding:24px}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo-wrap">
+      <div class="logo-icon">W</div>
+      <div>
+        <div class="logo-text">Weight<span>Wise</span></div>
+        <div style="font-size:11px;color:#888;margin-top:-2px">תוכנית אישית מותאמת</div>
+      </div>
+    </div>
+    <div class="header-meta">
+      <div>הופקה: ${dateStr}</div>
+      <div style="color:#6366f1;font-weight:700">weightwise.app</div>
+    </div>
+  </div>
+
+  <!-- Stats + Goal row -->
+  <div class="section-title">פרופיל גוף ומטרה</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:0">
+    <div class="stats-grid" style="grid-template-columns:repeat(2,1fr)">
+      <div class="stat-card"><div class="stat-val">${d.w}</div><div class="stat-lbl">משקל ק"ג</div></div>
+      <div class="stat-card"><div class="stat-val">${d.bf}%</div><div class="stat-lbl">שומן (${d.cat.l})</div></div>
+      <div class="stat-card"><div class="stat-val">${d.lean}</div><div class="stat-lbl">שריר ק"ג</div></div>
+      <div class="stat-card"><div class="stat-val">${d.bmi}</div><div class="stat-lbl">BMI</div></div>
+    </div>
+    <div class="goal-banner">
+      <div>
+        <div class="goal-main">🎯 ${d.goalLabel}</div>
+        ${!d.isMaintain ? `<div class="goal-sub">${d.isGain?'עודף':'גירעון'} ${d.deficit} קל/יום · ${d.weeks} שבועות</div>` : ''}
+        <div class="goal-sub" style="margin-top:6px;color:#888">TDEE: ${d.tdee.toLocaleString()} קל/יום</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Calories -->
+  <div class="section-title">יעדים קלוריים יומיים</div>
+  <div class="cal-row">
+    <div class="cal-card high">
+      <div class="cal-card-top">
+        <span class="cal-label">🏋️ יום אימון</span>
+        <span style="font-size:20px">🔥</span>
+      </div>
+      <div class="cal-num">${highCals.toLocaleString()}</div>
+      <div class="cal-unit">קלוריות</div>
+    </div>
+    <div class="cal-card low">
+      <div class="cal-card-top">
+        <span class="cal-label">😴 יום מנוחה</span>
+        <span style="font-size:20px">💤</span>
+      </div>
+      <div class="cal-num">${lowCals.toLocaleString()}</div>
+      <div class="cal-unit">קלוריות</div>
+    </div>
+  </div>
+
+  <!-- Macros -->
+  <div class="section-title">מאקרו יומי ממוצע</div>
+  <div class="macro-row">
+    <div class="macro-box p">
+      <div class="macro-val">${d.prot}g</div>
+      <div class="macro-lbl">חלבון 🥩</div>
+      <div class="macro-kcal">${Math.round(d.prot*4)} קל</div>
+    </div>
+    <div class="macro-box c">
+      <div class="macro-val">${d.carb}g</div>
+      <div class="macro-lbl">פחמימות 🌾</div>
+      <div class="macro-kcal">${Math.round(d.carb*4)} קל</div>
+    </div>
+    <div class="macro-box f">
+      <div class="macro-val">${d.fat}g</div>
+      <div class="macro-lbl">שומן 🥑</div>
+      <div class="macro-kcal">${Math.round(d.fat*9)} קל</div>
+    </div>
+  </div>
+
+  <!-- Meal Plan - Training Day -->
+  <div class="section-title">תפריט יומי לדוגמה</div>
+  <div class="day-header">
+    <div class="day-pill train">🏋️ יום אימון</div>
+    <div class="day-cals-note">${highCals.toLocaleString()} קלוריות</div>
+  </div>
+  <div style="margin-bottom:4px">${highHtml}</div>
+  <div style="font-size:10px;color:#999;text-align:right;margin-bottom:18px">⚠️ כל המשקלים — לאחר בישול</div>
+
+  <div class="day-header">
+    <div class="day-pill rest">😴 יום מנוחה</div>
+    <div class="day-cals-note">${lowCals.toLocaleString()} קלוריות</div>
+  </div>
+  <div style="margin-bottom:4px">${lowHtml}</div>
+  <div style="font-size:10px;color:#999;text-align:right;margin-bottom:8px">⚠️ כל המשקלים — לאחר בישול</div>
+
+  <!-- Tips -->
+  <div class="section-title" style="margin-top:22px">המלצות</div>
+  <div class="tips">
+    <div class="tip">⚖️&nbsp; שקול כל בוקר לפני אכילה, אחרי שירותים — עקוב אחרי ממוצע שבועי</div>
+    <div class="tip">💪&nbsp; אימוני כוח 3–4× בשבוע — חיוניים לשמירה על שריר ${d.isGain?'ולבניית מסה':'בזמן ירידה'}</div>
+    <div class="tip">🔄&nbsp; חלוקה לימים גבוהים ונמוכים — הדרך החכמה להתמיד לאורך זמן</div>
+    <div class="tip">💧&nbsp; שתה 2.5–3 ליטר מים ביום</div>
+    <div class="tip">😴&nbsp; שינה 7–9 שעות — משפיעה ישירות על שריפת שומן ורמות הורמונים</div>
+    <div class="tip">📸&nbsp; צלם תמונה פעם בשבוע — שינויי הרכב גוף לא תמיד מתבטאים במשקל</div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="footer-logo">⚡ WeightWise</div>
+    <div class="footer-note">תוכנית זו הופקה אוטומטית · ${dateStr} · weightwise.app</div>
+  </div>
+
+</div>
+<script>window.onload=()=>window.print();<\/script>
+</body>
+</html>`;
+
+  const w = window.open('','_blank');
+  w.document.write(html);
+  w.document.close();
 }
 
 /* ── CHART ── */

@@ -1,27 +1,41 @@
-import express from "express";
-import cors from "cors";
-
-const app = express();
-app.use(cors());
-app.use(express.json({ limit: "20mb" }));
-
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "AIzaSyCXQlLJZB7_k_IGhQp2PzY3eyh1augBxfI";
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
-app.post("/analyze", async (req, res) => {
-  const { images, imageBase64, mediaType, gender } = req.body;
+const parseGeminiJson = (text) => {
+  let clean = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/i, '').trim();
+  const match = clean.match(/\{[\s\S]*\}/);
+  if (!match) throw new Error("No JSON object found in response");
+  clean = match[0];
+  try { return JSON.parse(clean); } catch {}
+  clean = clean.replace(/,\s*([\}\]])/g, '$1');
+  return JSON.parse(clean);
+};
+
+export const handler = async (event) => {
+  if (event.httpMethod !== 'POST') {
+    return { statusCode: 405, body: 'Method Not Allowed' };
+  }
+
+  let body;
+  try {
+    body = JSON.parse(event.body);
+  } catch {
+    return { statusCode: 400, body: JSON.stringify({ error: 'Invalid JSON' }) };
+  }
+
+  const { images, imageBase64, mediaType, gender } = body;
 
   const imageList = images && images.length
     ? images
     : imageBase64 ? [{ data: imageBase64, mediaType: mediaType || "image/jpeg" }] : [];
 
   if (!imageList.length) {
-    return res.status(400).json({ error: "No image provided" });
+    return { statusCode: 400, body: JSON.stringify({ error: "No image provided" }) };
   }
 
   for (const img of imageList) {
     if (img.data.length > 5_500_000) {
-      return res.status(400).json({ error: "אחת התמונות גדולה מדי. אנא השתמש בתמונות עד 4MB." });
+      return { statusCode: 400, body: JSON.stringify({ error: "אחת התמונות גדולה מדי. אנא השתמש בתמונות עד 4MB." }) };
     }
   }
 
@@ -117,7 +131,6 @@ Respond ONLY with valid JSON (no markdown, no code blocks, no explanation outsid
   "keyIndicators": ["<סממן 1 בעברית>", "<סממן 2 בעברית>", "<סממן 3 בעברית>"]
 }`;
 
-  // Build Gemini request parts: images first, then text prompt
   const parts = [
     ...imageList.map(img => ({
       inline_data: {
@@ -147,57 +160,25 @@ Respond ONLY with valid JSON (no markdown, no code blocks, no explanation outsid
       throw new Error(data.error?.message || JSON.stringify(data));
     }
 
-    // Gemini 2.5 uses thinking tokens — find the actual text part (not thought)
     const responseParts = data.candidates?.[0]?.content?.parts || [];
     const textPart = responseParts.find(p => p.text && !p.thought);
     const rawText = textPart?.text?.trim();
     if (!rawText) {
-      console.error("No text part found. Full response:", JSON.stringify(data).slice(0, 800));
       throw new Error("Empty response from Gemini");
     }
 
-    let result;
-    const parseGeminiJson = (text) => {
-      // Strip markdown code blocks
-      let clean = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/i, '').trim();
-      // Extract first { ... } block
-      const match = clean.match(/\{[\s\S]*\}/);
-      if (!match) throw new Error("No JSON object found in response");
-      clean = match[0];
-      // Try direct parse
-      try { return JSON.parse(clean); } catch {}
-      // Fix trailing commas before } or ]
-      clean = clean.replace(/,\s*([\}\]])/g, '$1');
-      return JSON.parse(clean);
+    const result = parseGeminiJson(rawText);
+
+    return {
+      statusCode: 200,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(result)
     };
-    try {
-      result = parseGeminiJson(rawText);
-    } catch (parseErr) {
-      console.error("Parse failed. Raw:", rawText.slice(0, 500));
-      throw new Error("שגיאת פענוח תגובה — נסה שוב");
-    }
-
-    res.json(result);
   } catch (err) {
-    console.error("Gemini API error:", err.message);
-    res.status(500).json({ error: err.message });
+    return {
+      statusCode: 500,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ error: err.message })
+    };
   }
-});
-
-app.get("/health", (req, res) => res.json({
-  ok: true,
-  engine: "gemini-2.5-flash",
-  auth: GEMINI_API_KEY ? "gemini_api_key" : "none"
-}));
-
-import { fileURLToPath } from "url";
-import { dirname } from "path";
-const __dirname = dirname(fileURLToPath(import.meta.url));
-app.use(express.static(__dirname));
-
-const PORT = process.env.PORT || 4568;
-app.listen(PORT, () => {
-  console.log(`✅ Body composition server running at http://localhost:${PORT}`);
-  console.log(`🔮 Engine: Gemini 1.5 Flash Vision (free tier)`);
-  console.log(`📄 Open http://localhost:${PORT}/weight-tracker.html`);
-});
+};

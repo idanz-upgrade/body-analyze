@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "weight-tracker",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["server.js"],
+      "port": 4568,
+      "cwd": "/Users/idanzyl/Desktop/calorie-landing"
+    }
+  ]
+}
