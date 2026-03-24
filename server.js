@@ -5,7 +5,7 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: "20mb" }));
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "AIzaSyCXQlLJZB7_k_IGhQp2PzY3eyh1augBxfI";
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
 app.post("/analyze", async (req, res) => {
