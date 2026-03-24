@@ -61,16 +61,15 @@
 
     /* INPUTS */
     .inputs-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
-    .irow{display:flex;align-items:center;gap:5px}
+    .irow{display:flex;align-items:center;gap:6px}
     .ninput{flex:1;background:var(--card2);border:1px solid var(--border);border-radius:11px;
-      padding:10px 6px;color:var(--text);font-family:'Syne',sans-serif;font-size:22px;font-weight:800;
+      padding:10px 4px;color:var(--text);font-family:'Syne',sans-serif;font-size:22px;font-weight:800;
       text-align:center;outline:none;transition:border-color .2s;-moz-appearance:textfield;min-width:0}
     .ninput::-webkit-inner-spin-button{-webkit-appearance:none}
     .ninput:focus{border-color:var(--primary)}
-    .ubadge{background:var(--card2);border:1px solid var(--border);border-radius:8px;
-      padding:8px 9px;font-size:11px;font-weight:700;color:var(--muted);white-space:nowrap}
-    .sbtn{width:32px;height:32px;border-radius:50%;background:var(--card2);border:1px solid var(--border);
-      color:var(--text);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;flex-shrink:0}
+    .ubadge{font-size:10px;font-weight:700;color:var(--muted);margin-right:2px}
+    .sbtn{width:36px;height:36px;border-radius:50%;background:var(--card2);border:1px solid var(--border);
+      color:var(--text);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;flex-shrink:0}
     .sbtn:hover{background:#374151;border-color:var(--primary)}
 
     /* ACTIVITY */
@@ -263,13 +262,21 @@
     @media(max-width:640px){
       nav{padding:16px 20px}.nav-links{display:none}
       .hero{padding:52px 20px 36px}
-      .card-header,.card-body{padding:18px 20px}
-      .inputs-3,.act-grid{grid-template-columns:repeat(2,1fr)}
+      .card-header,.card-body{padding:18px 16px}
+      .inputs-3{grid-template-columns:repeat(3,1fr);gap:8px}
+      .inputs-3 .ninput{font-size:18px;padding:8px 2px}
+      .inputs-3 .sbtn{width:30px;height:30px;font-size:16px}
+      .act-grid{grid-template-columns:repeat(2,1fr)}
       .bf-goal-grid{grid-template-columns:repeat(3,1fr)}
       .photo-grid{grid-template-columns:1fr}
       .results-2col,.metrics-4,.macros-3{grid-template-columns:repeat(2,1fr)}
       .form-row{flex-direction:column}
       footer{flex-direction:column;gap:10px;text-align:center;padding:20px}
+    }
+    @media(max-width:380px){
+      .inputs-3{grid-template-columns:1fr}
+      .inputs-3 .irow{justify-content:center}
+      .inputs-3 .ninput{max-width:100px}
     }
   </style>
 </head>
@@ -313,30 +320,27 @@
       <!-- H / W / AGE -->
       <div class="inputs-3">
         <div>
-          <span class="field-label" style="text-align:center">📏 גובה</span>
+          <span class="field-label" style="text-align:center">📏 גובה <span class="ubadge">ס"מ</span></span>
           <div class="irow">
             <button class="sbtn" onclick="adj('height',-1)">−</button>
             <input class="ninput" id="height" type="number" value="180" min="140" max="220"/>
             <button class="sbtn" onclick="adj('height',1)">+</button>
-            <span class="ubadge">ס"מ</span>
           </div>
         </div>
         <div>
-          <span class="field-label" style="text-align:center">⚖️ משקל</span>
+          <span class="field-label" style="text-align:center">⚖️ משקל <span class="ubadge">ק"ג</span></span>
           <div class="irow">
             <button class="sbtn" onclick="adj('weight',-1)">−</button>
             <input class="ninput" id="weight" type="number" value="85" min="40" max="200"/>
             <button class="sbtn" onclick="adj('weight',1)">+</button>
-            <span class="ubadge">ק"ג</span>
           </div>
         </div>
         <div>
-          <span class="field-label" style="text-align:center">🎂 גיל</span>
+          <span class="field-label" style="text-align:center">🎂 גיל <span class="ubadge">שנים</span></span>
           <div class="irow">
             <button class="sbtn" onclick="adj('age',-1)">−</button>
             <input class="ninput" id="age" type="number" value="28" min="16" max="80"/>
             <button class="sbtn" onclick="adj('age',1)">+</button>
-            <span class="ubadge">שנים</span>
           </div>
         </div>
       </div>
