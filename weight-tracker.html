@@ -629,7 +629,73 @@
         ⬇️ הורד את התוכנית שלך
       </button>
 
+      <!-- Waitlist CTA -->
+      <div style="margin-top:24px;background:linear-gradient(135deg,#0f172a,#1e1b4b);border:1px solid rgba(99,102,241,.4);border-radius:20px;padding:24px 20px;direction:rtl;text-align:right;position:relative;overflow:hidden">
+        <div style="position:absolute;top:-30px;left:-30px;width:120px;height:120px;background:radial-gradient(circle,rgba(99,102,241,.3),transparent);border-radius:50%;pointer-events:none"></div>
+        <div style="position:absolute;bottom:-20px;right:-20px;width:80px;height:80px;background:radial-gradient(circle,rgba(139,92,246,.2),transparent);border-radius:50%;pointer-events:none"></div>
+
+        <div style="font-size:11px;font-weight:700;color:#818cf8;letter-spacing:1px;margin-bottom:8px">🚀 בקרוב — האפליקציה של עידן זיל</div>
+        <div style="font-size:20px;font-weight:800;color:#fff;line-height:1.3;margin-bottom:6px">מאמן תזונה אישי<br>שמסתגל אליך אוטומטית</div>
+        <div style="font-size:13px;color:#94a3b8;line-height:1.7;margin-bottom:20px">
+          כל שבוע — שוקל, מצלם, מקבל תפריט מעודכן.<br>
+          AI שרואה את ההתקדמות שלך ומכוון מחדש.
+        </div>
+
+        <!-- Features list -->
+        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:22px">
+          <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:#e2e8f0">
+            <span style="width:24px;height:24px;background:rgba(99,102,241,.2);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">📸</span>
+            ניתוח הרכב גוף שבועי מתמונה
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:#e2e8f0">
+            <span style="width:24px;height:24px;background:rgba(99,102,241,.2);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">🍽️</span>
+            תפריט מותאם שמתעדכן לפי ההתקדמות
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:#e2e8f0">
+            <span style="width:24px;height:24px;background:rgba(99,102,241,.2);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">📊</span>
+            גרף שינוי אחוז שומן ומסת שריר לאורך זמן
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:#e2e8f0">
+            <span style="width:24px;height:24px;background:rgba(99,102,241,.2);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">⚡</span>
+            ללא ספירת קלוריות — תזונה גמישה בלבד
+          </div>
+        </div>
+
+        <!-- Price + CTA -->
+        <div style="background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);border-radius:14px;padding:14px 16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-size:11px;color:#818cf8;font-weight:700">הצטרפות לרשימת המתנה</div>
+            <div style="font-size:22px;font-weight:800;color:#fff;margin-top:2px">₪9.90 <span style="font-size:12px;color:#94a3b8;font-weight:400">חד פעמי</span></div>
+          </div>
+          <div style="text-align:left">
+            <div style="font-size:11px;color:#34d399;font-weight:700">✓ חודש ראשון חינם</div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:2px">₪19.90/חודש לאחר מכן</div>
+          </div>
+        </div>
+
+        <button onclick="joinWaitlist()" style="width:100%;background:linear-gradient(135deg,#6366f1,#7c3aed);color:#fff;border:none;border-radius:14px;padding:15px;font-size:16px;font-weight:800;font-family:'Assistant',sans-serif;cursor:pointer;letter-spacing:.3px">
+          הצטרף לרשימת ההמתנה ←
+        </button>
+        <div style="text-align:center;font-size:11px;color:#64748b;margin-top:10px">🔒 תשלום מאובטח · ביטול בכל עת</div>
+      </div>
+
     </div>
+  </div>
+</div>
+
+<!-- Waitlist Modal -->
+<div id="waitlistModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#1e1b4b;border:1px solid rgba(99,102,241,.4);border-radius:24px;padding:32px 24px;max-width:400px;width:100%;direction:rtl;text-align:right;position:relative">
+    <button onclick="closeWaitlist()" style="position:absolute;top:16px;left:16px;background:rgba(255,255,255,.1);border:none;color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px">✕</button>
+    <div style="font-size:24px;margin-bottom:8px">🎉</div>
+    <div style="font-size:19px;font-weight:800;color:#fff;margin-bottom:6px">הצטרף לרשימה</div>
+    <div style="font-size:13px;color:#94a3b8;margin-bottom:24px;line-height:1.6">השאר פרטים ונחזור אליך עם לינק תשלום ברגע שהאפליקציה מוכנה.</div>
+    <input id="wlName" placeholder="שם מלא" style="width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(99,102,241,.3);border-radius:12px;padding:13px 16px;color:#fff;font-size:14px;font-family:'Assistant',sans-serif;direction:rtl;margin-bottom:10px;box-sizing:border-box">
+    <input id="wlEmail" type="email" placeholder="כתובת אימייל" style="width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(99,102,241,.3);border-radius:12px;padding:13px 16px;color:#fff;font-size:14px;font-family:'Assistant',sans-serif;direction:rtl;margin-bottom:20px;box-sizing:border-box">
+    <button onclick="submitWaitlist()" style="width:100%;background:linear-gradient(135deg,#6366f1,#7c3aed);color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:800;font-family:'Assistant',sans-serif;cursor:pointer">
+      אני רוצה להצטרף ←
+    </button>
+    <div id="wlSuccess" style="display:none;text-align:center;color:#34d399;font-size:14px;font-weight:700;margin-top:16px">✅ נרשמת בהצלחה! נעדכן אותך בקרוב.</div>
   </div>
 </div>
 
@@ -1414,6 +1480,28 @@ function buildSummary(w, bf, bmi, lean, tdee, cals, prot, carb, fat, deficit, we
     '💧 שתה 2.5–3 ליטר מים ביום',
   ];
   $('planSummaryContent').innerHTML = lines.map(l=>`<div style="padding:2px 0;border-bottom:1px solid rgba(255,255,255,.05)">${l}</div>`).join('');
+}
+
+/* ── WAITLIST ── */
+function joinWaitlist(){
+  document.getElementById('waitlistModal').style.display='flex';
+}
+function closeWaitlist(){
+  document.getElementById('waitlistModal').style.display='none';
+}
+function submitWaitlist(){
+  const name = document.getElementById('wlName').value.trim();
+  const email = document.getElementById('wlEmail').value.trim();
+  if(!name || !email){ alert('נא למלא שם ואימייל'); return; }
+  // שמור ב-localStorage
+  const list = JSON.parse(localStorage.getItem('waitlist')||'[]');
+  list.push({name, email, date: new Date().toISOString()});
+  localStorage.setItem('waitlist', JSON.stringify(list));
+  document.getElementById('wlSuccess').style.display='block';
+  document.getElementById('wlName').style.display='none';
+  document.getElementById('wlEmail').style.display='none';
+  document.querySelector('#waitlistModal button[onclick="submitWaitlist()"]').style.display='none';
+  setTimeout(closeWaitlist, 2500);
 }
 
 /* ── DOWNLOAD ── */
