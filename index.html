@@ -269,7 +269,13 @@
       .act-grid{grid-template-columns:repeat(2,1fr)}
       .bf-goal-grid{grid-template-columns:repeat(3,1fr)}
       .photo-grid{grid-template-columns:1fr}
-      .results-2col,.metrics-4,.macros-3{grid-template-columns:repeat(2,1fr)}
+      .results-2col{grid-template-columns:1fr 1fr;gap:8px}
+      .metrics-4,.macros-3{grid-template-columns:repeat(2,1fr)}
+      .result-card{padding:14px 12px}
+      .rnum{font-size:36px!important}
+      .runit{font-size:14px!important}
+      .cals-num{font-size:40px}
+      .met-val{font-size:16px}
       .form-row{flex-direction:column}
       footer{flex-direction:column;gap:10px;text-align:center;padding:20px}
     }
@@ -277,6 +283,7 @@
       .inputs-3{grid-template-columns:1fr}
       .inputs-3 .irow{justify-content:center}
       .inputs-3 .ninput{max-width:100px}
+      .results-2col{grid-template-columns:1fr}
     }
   </style>
 </head>
